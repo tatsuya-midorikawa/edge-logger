@@ -5,6 +5,7 @@ type FilePath = FilePath of string
 
 let winsrv'filepath = FilePath @"C:\logs\winsrv.log"
 let edge'filepath = FilePath @"C:\logs\edge.log"
+let ie'filepath = FilePath @"C:\logs\ie.log"
 
 let exists (FilePath path) =
   File.Exists path
