@@ -22,7 +22,7 @@ let output (FilePath path) (msg: string) =
     use _ = System.IO.File.Create path
     ()
   task {
-    let now = System.DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
-    do! System.IO.File.AppendAllLinesAsync(path, seq { $"[{now}]" })
+    //let now = System.DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss")
+    //do! System.IO.File.AppendAllLinesAsync(path, seq { $"[{now}]" })
     do! System.IO.File.AppendAllLinesAsync(path, seq { msg })
   }

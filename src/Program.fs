@@ -1,10 +1,16 @@
-﻿let wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
+﻿open System.Text.Json
 
-//task {
-//  do! Logger.output Logger.winsrv'filepath "test"
-//}
-//|> wait
+let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
+let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true))
+let output_to_winsrv = Logger.output Logger.winsrv'filepath
 
-Winsrv.getServices()
-|> Array.map (fun s -> printfn $"    {s.ServiceName} : {s.Status}")
+let winsrv_json = 
+  Winsrv.getServices()
+  |> Winsrv.collect
+  |> toJson
 
+task {
+  do! output_to_winsrv winsrv_json
+}
+|> wait
+  
