@@ -5,6 +5,8 @@ open System.Diagnostics
 open System.Web
 open System
 
+open Reg
+
 let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
 let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
 let output_to_winsrv = Logger.output Logger.winsrv'filepath
@@ -17,7 +19,7 @@ let version =
   |> createVersionInfo
   |> (fun vi -> vi.ProductVersion)
 
-printfn "%s" version
+//printfn "%s" version
 
 
 //let winsrv_json = 
@@ -44,13 +46,13 @@ printfn "%s" version
 //|> Array.map (fun name -> { Reg.Name = name; Reg.Type = HKLM'Edge.GetValueKind(name) |> string; Reg.Value = Registry.GetValue(HKLM'Edge.Name, name, "") })
 
 
-//Reg.getEdgeRegistries ()
-//|> toJson
-//|> printfn "%s"
-
-Reg.getIeRegistries ()
+EdgeReg.getEdgeRegistries ()
 |> toJson
 |> printfn "%s"
+
+//IEReg.getIeRegistries ()
+//|> toJson
+//|> printfn "%s"
 
 //let HKLM'Edge = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Edge", false)
 //HKLM'Edge.GetSubKeyNames() |> Array.iter (printfn "%s")
