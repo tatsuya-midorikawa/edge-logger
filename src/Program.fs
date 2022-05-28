@@ -22,10 +22,12 @@ let version =
 //printfn "%s" version
 
 
-//let winsrv_json = 
-//  Winsrv.getServices()
-//  |> Winsrv.collect
-//  |> toJson
+let winsrv_json = 
+  Winsrv.getServices()
+  |> Winsrv.collect
+  |> toJson
+
+printfn "%s" winsrv_json
 
 //task {
 //  do! output_to_winsrv winsrv_json
@@ -46,9 +48,9 @@ let version =
 //|> Array.map (fun name -> { Reg.Name = name; Reg.Type = HKLM'Edge.GetValueKind(name) |> string; Reg.Value = Registry.GetValue(HKLM'Edge.Name, name, "") })
 
 
-EdgeReg.getEdgeRegistries ()
-|> toJson
-|> printfn "%s"
+//EdgeReg.getEdgeRegistries ()
+//|> toJson
+//|> printfn "%s"
 
 //IEReg.getIeRegistries ()
 //|> toJson

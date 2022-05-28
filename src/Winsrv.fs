@@ -1,7 +1,7 @@
 ﻿module Winsrv
 
-type Service = { Name: string; Status: string }
+type Service = { name: string; status: string }
 let inline getServices () =
   System.ServiceProcess.ServiceController.GetServices()
 let inline collect (services: System.ServiceProcess.ServiceController[]) =
-  services |> Array.map (fun s -> { Name = s.ServiceName; Status = $"{s.Status}" })
+  services |> Array.map (fun s -> { name = s.ServiceName; status = $"{s.Status}" })

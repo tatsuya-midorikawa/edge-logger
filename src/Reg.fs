@@ -40,7 +40,7 @@
       use hkcu'edge = Registry.CurrentUser.OpenSubKey(edge, false)
       let xs = dig(hkcu'edge)
       c.AddMany xs
-      let edge = c.Close()
+      let edge' = c.Close()
       
       // SOFTWARE\Policies\Microsoft\EdgeUpdate
       c <- ArrayCollector<Reg>()
@@ -62,7 +62,7 @@
       c.AddMany xs
       let webview2 = c.Close()
 
-      { Edge = edge; EdgeUpdate = update; WebView2 = webview2; }
+      { Edge = edge'; EdgeUpdate = update; WebView2 = webview2; }
 
   module IEReg =
     
