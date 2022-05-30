@@ -17,10 +17,10 @@ type Command () =
   inherit ConsoleAppBase ()
   [<RootCommand>]
   member __.root(
-    [<Option("d", "Specify the dest dir for log output.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
+    [<Option("d", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
     [<Option("w", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("e", "Output Edge policy info.");Optional;DefaultParameterValue(false)>] edge: bool,
-    [<Option("i", "Output IE info.");Optional;DefaultParameterValue(false)>] ie: bool,
+    [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let winsrvTask =
