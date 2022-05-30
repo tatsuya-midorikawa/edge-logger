@@ -6,57 +6,57 @@ open System.Web
 open System
 
 open Reg
+open ConsoleAppFramework
+open System.Runtime.InteropServices
 
 let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
 let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
-let output_to_winsrv = Logger.output Logger.winsrv'filepath
-let createVersionInfo = System.IO.Path.Combine >> System.Diagnostics.FileVersionInfo.GetVersionInfo
-let version = 
-  [| 
-    System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86)
-    @"Microsoft\Edge\Application\msedge.exe" 
-  |]
-  |> createVersionInfo
-  |> (fun vi -> vi.ProductVersion)
+let emptyTask = System.Threading.Tasks.Task.Run<unit>(fun () -> ())
 
-//printfn "%s" version
+type Command () =
+  inherit ConsoleAppBase ()
+  [<RootCommand>]
+  member __.root(
+    [<Option("d", "Specify the dest dir for log output.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
+    [<Option("w", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("e", "Output Edge policy info.");Optional;DefaultParameterValue(false)>] edge: bool,
+    [<Option("i", "Output IE info.");Optional;DefaultParameterValue(false)>] ie: bool,
+    [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
+    
+    let winsrvTask =
+      if full || winsrv then
+        let path = Logger.winsrv'filepath dir
+        Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
+      else
+        emptyTask
 
+    let edgeTask =
+      if full || edge then
+        let path = Logger.edge'filepath dir
+        EdgeReg.getEdgeRegistries () |> toJson |> Logger.output path
+      else
+        emptyTask
 
-let winsrv_json = 
-  Winsrv.getServices()
-  |> Winsrv.collect
-  |> toJson
+    let ieTask =
+      if full || ie then
+        let path = Logger.ie'filepath dir
+        IEReg.getIeRegistries () |> toJson |> Logger.output path
+      else
+        emptyTask
+      
+    let basicTask =
+      let path = Logger.basic'filepath dir
+      Basic.getInfo () |> toJson |> Logger.output path
 
-printfn "%s" winsrv_json
-
-//task {
-//  do! output_to_winsrv winsrv_json
-//}
-//|> wait
+    task {
+      do! winsrvTask
+      do! edgeTask
+      do! ieTask
+      do! basicTask
+    }
+    |> wait
   
-
-//let HKLM'Edge = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Edge", false)
-//let values = HKLM'Edge.GetValueNames()
-//let edge'key = @"SOFTWARE\Policies\Microsoft\Edge"
-
-//HKLM'Edge.GetValueNames()
-//|> Array.map (fun name -> { Reg.Name = name; Reg.Value = Registry.GetValue(HKLM'Edge.Name, name, "") })
-//|> toJson
-//|> printfn "%s"
-
-//HKLM'Edge.GetValueNames()
-//|> Array.map (fun name -> { Reg.Name = name; Reg.Type = HKLM'Edge.GetValueKind(name) |> string; Reg.Value = Registry.GetValue(HKLM'Edge.Name, name, "") })
-
-
-//EdgeReg.getEdgeRegistries ()
-//|> toJson
-//|> printfn "%s"
-
-//IEReg.getIeRegistries ()
-//|> toJson
-//|> printfn "%s"
-
-//let HKLM'Edge = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Policies\Microsoft\Edge", false)
-//HKLM'Edge.GetSubKeyNames() |> Array.iter (printfn "%s")
-
-//HKLM'Edge.Dispose()
+[<EntryPoint>]
+let main args =
+  ConsoleApp.Run<Command>(args)
+  0

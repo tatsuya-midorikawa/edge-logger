@@ -4,22 +4,27 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>edge_logger</RootNamespace>
-		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<Version>0.0.1</Version>
+    <Copyright>© 2022 Tatsuya Midorikawa. All rights rserved</Copyright>
+    <AssemblyName>edge-logger</AssemblyName>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>-->
+		<PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Reg.fs" />
     <Compile Include="Logger.fs" />
+    <Compile Include="Basic.fs" />
+    <Compile Include="Reg.fs" />
     <Compile Include="Winsrv.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConsoleAppFramework" Version="4.1.0" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.4" />
