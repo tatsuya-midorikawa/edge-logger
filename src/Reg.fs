@@ -20,37 +20,6 @@
           { path = null; name = name; vtype = null; value = null; values = xs} )
       Array.append values children
 
-  module EdgeReg =
-    type EdgeReg = { Edge: Reg[]; EdgeUpdate: Reg[]; WebView2: Reg[] }
-
-    [<Literal>]
-    let edge = @"SOFTWARE\Policies\Microsoft\Edge"
-    [<Literal>]
-    let edge'update = @"SOFTWARE\Policies\Microsoft\EdgeUpdate"
-    [<Literal>]
-    let edge'webview2 = @"SOFTWARE\Policies\Microsoft\Edge\WebView2"
-
-    let inline getEdgeRegistries () =
-
-      let fetch reg =
-        let mutable c = ArrayCollector<Reg>()
-        use hklm = Registry.LocalMachine.OpenSubKey(reg, false)
-        let xs = dig hklm
-        c.AddMany xs
-        use hkcu = Registry.CurrentUser.OpenSubKey(reg, false)
-        let xs = dig(hkcu)
-        c.AddMany xs
-        c.Close()
-
-      // SOFTWARE\Policies\Microsoft\Edge
-      let edge' = fetch edge
-      // SOFTWARE\Policies\Microsoft\EdgeUpdate
-      let update = fetch edge'update
-      // SOFTWARE\Policies\Microsoft\Edge\WebView2
-      let webview2 = fetch edge'webview2
-
-      { Edge = edge'; EdgeUpdate = update; WebView2 = webview2; }
-
   module IEReg =
     let regs = [|
       @"Software\Microsoft\Active Setup\Installed Components"

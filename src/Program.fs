@@ -4,6 +4,7 @@ open System.IO
 open System.Diagnostics
 open System.Web
 open System
+open System.Linq
 
 open Reg
 open ConsoleAppFramework
@@ -33,7 +34,7 @@ type Command () =
     let edgeTask =
       if full || edge then
         let path = Logger.edge'filepath dir
-        EdgeReg.getEdgeRegistries () |> toJson |> Logger.output path
+        EdgePolicy.fetch () |> toJson |> Logger.output path
       else
         emptyTask
 
@@ -66,7 +67,7 @@ let main args =
 
   let edgeTask =
     let path = Logger.edge'filepath dir
-    EdgeReg.getEdgeRegistries () |> toJson |> Logger.output path
+    EdgePolicy.fetch () |> toJson |> Logger.output path
 
   let ieTask =
     let path = Logger.ie'filepath dir
@@ -83,6 +84,7 @@ let main args =
     do! basicTask
   }
   |> wait
+
   0
 
 #else

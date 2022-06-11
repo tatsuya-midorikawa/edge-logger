@@ -7,16 +7,17 @@
 		<Version>0.0.1</Version>
     <Copyright>© 2022 Tatsuya Midorikawa. All rights rserved</Copyright>
     <AssemblyName>edge-logger</AssemblyName>
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishTrimmed>true</PublishTrimmed>
+		<PublishTrimmed>true</PublishTrimmed>-->
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="EdgePolicy.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Basic.fs" />
     <Compile Include="Reg.fs" />
