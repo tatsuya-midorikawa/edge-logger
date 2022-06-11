@@ -7,6 +7,7 @@
   type Policy = { path: string; name: string; vtype: string; value: obj; values: Policy[]}
   type Policies = { Metadata: Metadata; EdgePolicies: Policy[]; EdgeUpdate: Policy[]; WebView2: Policy[] }
 
+  // ポリシーを再帰的に読み取る.
   let rec dig(key: RegistryKey) =
     if key = null
     then [||]
@@ -27,7 +28,8 @@
   [<Literal>]
   let edition'version = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\EditionVersion"
 
-  let inline getWindowsVersion () =
+  // OS のバージョン情報を取得する.
+  let inline fetchWindowsVersion () =
     use hklm = Registry.LocalMachine.OpenSubKey(current'version, false)
     let name = hklm.GetValue("ProductName") |> string
     let disp = hklm.GetValue("DisplayVersion") |> string
@@ -36,8 +38,9 @@
     let qfe = hklm.GetValue("EditionBuildQfe") |> string
     $"{name} {disp} (build {build}.{qfe})"
 
-  let createVersionInfo = System.IO.Path.Combine >> System.Diagnostics.FileVersionInfo.GetVersionInfo
-  let inline getEdgeVersion () = 
+  // Edge のバージョン情報を取得する.
+  let inline fetchEdgeVersion () = 
+    let createVersionInfo = System.IO.Path.Combine >> System.Diagnostics.FileVersionInfo.GetVersionInfo
     try
        [| 
          System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86)
@@ -54,6 +57,7 @@
   [<Literal>]
   let edge'webview2 = @"SOFTWARE\Policies\Microsoft\Edge\WebView2"
 
+  // Edge ポリシー情報を取得する.
   let inline fetch () =
 
     let load reg =
@@ -66,8 +70,8 @@
       c.AddMany xs
       c.Close()
       
-    let os = getWindowsVersion()
-    let version = getEdgeVersion()
+    let os = fetchWindowsVersion()
+    let version = fetchEdgeVersion()
     // SOFTWARE\Policies\Microsoft\Edge
     let edge' = load edge
     // SOFTWARE\Policies\Microsoft\EdgeUpdate
