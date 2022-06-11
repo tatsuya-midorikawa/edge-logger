@@ -60,30 +60,38 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  let dir = "./"
-  let winsrvTask =
-    let path = Logger.winsrv'filepath dir
-    Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
+  //let dir = "./"
+  //let winsrvTask =
+  //  let path = Logger.winsrv'filepath dir
+  //  Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
 
-  let edgeTask =
-    let path = Logger.edge'filepath dir
-    EdgePolicy.fetch () |> toJson |> Logger.output path
+  //let edgeTask =
+  //  let path = Logger.edge'filepath dir
+  //  EdgePolicy.fetch () |> toJson |> Logger.output path
 
-  let ieTask =
-    let path = Logger.ie'filepath dir
-    IEReg.getIeRegistries () |> toJson |> Logger.output path
+  //let ieTask =
+  //  let path = Logger.ie'filepath dir
+  //  IEReg.getIeRegistries () |> toJson |> Logger.output path
     
-  let basicTask =
-    let path = Logger.basic'filepath dir
-    Basic.getInfo () |> toJson |> Logger.output path
+  //let basicTask =
+  //  let path = Logger.basic'filepath dir
+  //  Basic.getInfo () |> toJson |> Logger.output path
 
-  task {
-    do! winsrvTask
-    do! edgeTask
-    do! ieTask
-    do! basicTask
-  }
-  |> wait
+  //task {
+  //  do! winsrvTask
+  //  do! edgeTask
+  //  do! ieTask
+  //  do! basicTask
+  //}
+  //|> wait
+
+  //{ Sample = [| {| foo = "bar" |} |] }
+  //|> toJson
+  //|> printfn "%s"
+
+  EdgePolicy.fetch ()
+  |> toJson
+  |> printfn "%s"
 
   0
 
