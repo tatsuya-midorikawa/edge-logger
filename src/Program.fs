@@ -56,7 +56,38 @@ type Command () =
     }
     |> wait
   
+#if DEBUG
+[<EntryPoint>]
+let main args =
+  let dir = "./"
+  let winsrvTask =
+    let path = Logger.winsrv'filepath dir
+    Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
+
+  let edgeTask =
+    let path = Logger.edge'filepath dir
+    EdgeReg.getEdgeRegistries () |> toJson |> Logger.output path
+
+  let ieTask =
+    let path = Logger.ie'filepath dir
+    IEReg.getIeRegistries () |> toJson |> Logger.output path
+    
+  let basicTask =
+    let path = Logger.basic'filepath dir
+    Basic.getInfo () |> toJson |> Logger.output path
+
+  task {
+    do! winsrvTask
+    do! edgeTask
+    do! ieTask
+    do! basicTask
+  }
+  |> wait
+  0
+
+#else
 [<EntryPoint>]
 let main args =
   ConsoleApp.Run<Command>(args)
   0
+#endif
