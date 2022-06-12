@@ -135,27 +135,67 @@
   let inline getlistvalues (key: string) =
     use hklm'mandatory = Registry.LocalMachine.OpenSubKey(key, false)
     use hklm'recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
-    use hkcu'mandatory = Registry.CurrentUser.OpenSubKey(key, false)
-    use hkcu'recommended = Registry.CurrentUser.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
+    //use hkcu'mandatory = Registry.CurrentUser.OpenSubKey(key, false)
+    //use hkcu'recommended = Registry.CurrentUser.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
     let acc = System.Collections.Generic.Dictionary<string, obj>()
     
-    let f (key: RegistryKey) subkey = 
-      use key = key.OpenSubKey(subkey)
-      let v = getvalues key.Name
-      ()
-    let a =
-      hklm'mandatory.GetSubKeyNames()
-      |> Array.filter (fun n -> not (n.EndsWith "Recommended"))
+    let load (key: RegistryKey) =
+      let xs = System.Collections.Generic.Dictionary<string, obj>()
+      let f name = 
+        xs.TryAdd(name, key.GetValue name) |> ignore
+      key.GetValueNames() |> Array.iter (f)
+      xs
+
+    hklm'mandatory.GetSubKeyNames()
+    |> Array.filter (fun n -> not (n.EndsWith "Recommended"))
+    |> Array.iter (fun name ->
+      use k = hklm'mandatory.OpenSubKey(name, false)
+      let v = {| level = "mandatory"; scope = "machine"; value = load k |}
+      acc.TryAdd(name, v ) |> ignore)
+      
+    //hklm'mandatory.GetSubKeyNames()
+    //|> Array.iter (fun name ->
+    //  use k = hklm'mandatory.OpenSubKey(name, false)
+    //  use r = hklm'recommended.OpenSubKey(name, false)
+    //  let rv =
+    //    if r <> null then
+    //      r.GetSubKeyNames
+
+    //  let v = {| level = "mandatory"; scope = "machine"; value = load k |}
+    //  acc.TryAdd(name, v ) |> ignore)
+
+    hklm'recommended.GetSubKeyNames()
+    |> Array.iter (fun name ->
+      use k = hklm'recommended.OpenSubKey(name, false)
+      let v = {| level = "recommended"; scope = "machine"; value = load k |}
+      acc.TryAdd(name, v ) |> ignore)
+    acc
+    //let f subkey = 
+    //  use mandatory'key = hklm'mandatory.OpenSubKey(subkey)
+    //  use recommended'key = hklm'recommended.OpenSubKey(subkey)
+      
+      
+
+    //  ()
+
+    //let a =
+    //  hklm'mandatory.GetSubKeyNames()
+    //  |> Array.filter (fun n -> not (n.EndsWith "Recommended"))
+    //  |> Array.iter f
 
 
-    use mandatory = Registry.LocalMachine.OpenSubKey(key, false)
-    if mandatory = null 
-    then null
-    else
-      let f name =
-        let value = mandatory.GetValue(name)
-        {| name = name; value = value |} :> obj
-      mandatory.GetValueNames() |> Array.map f
+
+
+
+
+    //use mandatory = Registry.LocalMachine.OpenSubKey(key, false)
+    //if mandatory = null 
+    //then null
+    //else
+    //  let f name =
+    //    let value = mandatory.GetValue(name)
+    //    {| name = name; value = value |} :> obj
+    //  mandatory.GetValueNames() |> Array.map f
     
   let dig'(key: string) =
     let a = getvalues key
