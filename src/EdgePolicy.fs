@@ -80,39 +80,57 @@
 
   // TODO: hkcu 対応
   let inline getvalues (key: string) =
-    use mandatory = Registry.LocalMachine.OpenSubKey(key, false)
-    use recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
-    let dict = System.Collections.Generic.Dictionary<string, obj>()
-    // values
-    if mandatory <> null then
-      let f name =
-        let value = mandatory.GetValue(name)
-        let rvalue = if recommended <> null then recommended.GetValue(name) else null
-        let scope = if mandatory.Name.StartsWith("HKEY_LOCAL_MACHINE") then "machine" else "user"
-        if rvalue = null
-        then
-          dict.Add(name, 
-          {| level = "mandatory"
-             scope = scope
-             value = value |} :> obj)
-        else
-          dict.Add(name, 
-          {| level = "mandatory"
-             scope = scope
-             superseded = {| level = "recommended"; scope = scope; value = rvalue |}
-             value = value |} :> obj)
-      mandatory.GetValueNames() |> Array.iter f
+    use hklm'mandatory = Registry.LocalMachine.OpenSubKey(key, false)
+    use hklm'recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
+    use hkcu'mandatory = Registry.CurrentUser.OpenSubKey(key, false)
+    use hkcu'recommended = Registry.CurrentUser.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
+    let acc = System.Collections.Generic.Dictionary<string, obj>()
 
-    //// TODO: children
-    //if mandatory <> null then
-    //  let f sub =
-    //    use subkey = mandatory.OpenSubKey(key)
-    //    if subkey <> null then
-    //      ()
+    let f name = 
+      let hklm'v = if hklm'mandatory <> null then hklm'mandatory.GetValue(name) else null
+      let hklm'rv = if hklm'recommended <> null then hklm'recommended.GetValue(name) else null
+      let hkcu'v = if hkcu'mandatory <> null then hkcu'mandatory.GetValue(name) else null
+      let hkcu'rv = if hkcu'recommended <> null then hkcu'recommended.GetValue(name) else null
+      let hklm'scope = "machine"
+      let hkcu'scope = "user"
 
-    //  let cs = mandatory.GetSubKeyNames()
-    //  ()
-    dict
+      match (hklm'v, hklm'rv, hkcu'v, hkcu'rv) with
+      | (null, null, null, null) -> ()
+      | (hklm'v, null, null, null) -> 
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; value = hklm'v |} :> obj) |> ignore
+      | (hklm'v, hklm'rv, null, null) -> 
+        let superseded = {| level = "recommended"; scope = hklm'scope; value = hklm'rv |}
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+      | (null, null, hkcu'v, null) -> 
+        acc.TryAdd(name, {| level = "mandatory"; scope = hkcu'scope; value = hkcu'v |} :> obj) |> ignore
+      | (null, null, hkcu'v, hkcu'rv) ->
+        let superseded = {| level = "recommended"; scope = hkcu'scope; value = hkcu'rv |}
+        acc.TryAdd(name, {| level = "mandatory"; scope = hkcu'scope; superseded = superseded; value = hkcu'v |} :> obj) |> ignore
+      | (hklm'v, null, hkcu'v, null) ->
+        let superseded = {| level = "recommended"; scope = hkcu'scope; value = hkcu'rv |}
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+      | (hklm'v, hklm'rv, hkcu'v, null) -> 
+        let superseded = [|
+          {| level = "recommended"; scope = hklm'scope; value = hklm'rv |} :> obj
+          {| level = "mandatory"; scope = hkcu'scope; value = hkcu'v |} |]
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+      | (hklm'v, null, hkcu'v, hkcu'rv) -> 
+        let superseded = [|
+          {| level = "recommended"; scope = hkcu'scope; value = hkcu'rv |} :> obj
+          {| level = "mandatory"; scope = hkcu'scope; value = hkcu'v |} |]
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+      | (hklm'v, hklm'rv, hkcu'v, hkcu'rv) -> 
+        let superseded = [|
+          {| level = "recommended"; scope = hklm'scope; value = hklm'rv |} :> obj
+          {| level = "mandatory"; scope = hkcu'scope; superseded = {| level = "recommended"; scope = hkcu'scope; value = hkcu'rv |}; value = hkcu'v |} |]
+        acc.TryAdd(name, {| level = "mandatory"; scope = hklm'scope; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+
+    if hklm'mandatory <> null then hklm'mandatory.GetValueNames() |> Array.iter f
+    if hkcu'mandatory <> null then hkcu'mandatory.GetValueNames() |> Array.iter f
+    if hklm'recommended <> null then hklm'recommended.GetValueNames() |> Array.iter f
+    if hkcu'recommended <> null then hkcu'recommended.GetValueNames() |> Array.iter f
+
+    acc
 
   // TODO: 
   let inline getlistvalues (key: string) =

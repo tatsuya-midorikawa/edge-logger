@@ -102,8 +102,8 @@ let main args =
   //|> toJson
   //|> printfn "%s"
 
-  //EdgePolicy.getvalues "SOFTWARE\Policies\Microsoft\Edge""
-  EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
+  EdgePolicy.getvalues "SOFTWARE\Policies\Microsoft\Edge"
+  //EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
   |> toJson
   |> printfn "%s"
 
