@@ -1,6 +1,8 @@
 ﻿module EdgePolicy
 
   open System.Text.Json.Serialization
+  open System.Collections.Generic
+  open System.Linq
   open Microsoft.Win32
   open FSharp.Core.CompilerServices
 
@@ -47,7 +49,7 @@
   }
   type Policies = {
     [<JsonPropertyOrder(1)>] Metadata : {| os: string; version: string |}
-    [<JsonPropertyOrder(2)>] EdgePolicies : Policy[]
+    [<JsonPropertyOrder(2)>] EdgePolicies : Dictionary<string, obj>
     [<JsonPropertyOrder(3)>] EdgeUpdate : Policy[]
     [<JsonPropertyOrder(4)>] WebView2 : Policy[]
   }
@@ -131,8 +133,7 @@
 
     acc
 
-  // TODO: 
-  let inline getlistvalues (key: string) =
+  let getlistvalues (key: string) =
     use hklm'mandatory = Registry.LocalMachine.OpenSubKey(key, false)
     use hklm'recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
     use hkcu'mandatory = Registry.CurrentUser.OpenSubKey(key, false)
@@ -145,13 +146,6 @@
         xs.TryAdd(name, key.GetValue name) |> ignore
       key.GetValueNames() |> Array.iter (f)
       xs
-
-    //hklm'mandatory.GetSubKeyNames()
-    //|> Array.filter (fun n -> not (n.EndsWith "Recommended"))
-    //|> Array.iter (fun name ->
-    //  use k = hklm'mandatory.OpenSubKey(name, false)
-    //  let v = {| level = "mandatory"; scope = "machine"; value = load k |}
-    //  acc.TryAdd(name, v ) |> ignore)
     
     let hashset = System.Collections.Generic.HashSet<string>()
     let exclude (s: string) = s.ToLower() <> "recommended"
@@ -163,10 +157,10 @@
     
     hashset
     |> Seq.iter (fun name ->
-      use hklm'mandatory = hklm'mandatory.OpenSubKey(name, false)
-      use hklm'recommended = hklm'recommended.OpenSubKey(name, false)
-      use hkcu'mandatory = hkcu'mandatory.OpenSubKey(name, false)
-      use hkcu'recommended = hkcu'recommended.OpenSubKey(name, false)
+      use hklm'mandatory = if hklm'mandatory <> null then hklm'mandatory.OpenSubKey(name, false) else null
+      use hklm'recommended = if hklm'recommended <> null then hklm'recommended.OpenSubKey(name, false) else null
+      use hkcu'mandatory = if hkcu'mandatory <> null then hkcu'mandatory.OpenSubKey(name, false) else null
+      use hkcu'recommended = if hkcu'recommended <> null then hkcu'recommended.OpenSubKey(name, false) else null
     
       let hklm'v = if hklm'mandatory <> null then load hklm'mandatory else null
       let hklm'rv = if hklm'recommended <> null then load hklm'recommended else null
@@ -185,102 +179,36 @@
         let superseded = {| level = "recommended"; scope = machine; value = hklm'rv |} :> obj
         let v = {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj
         acc.TryAdd(name, v) |> ignore
-
-
-        // TODO
       | (null, null, hkcu'v, null) -> 
-        acc.TryAdd(name, {| level = "mandatory"; scope = user; value = hkcu'v |} :> obj) |> ignore
+        let v = {| level = "mandatory"; scope = user; value = hkcu'v |} :> obj
+        acc.TryAdd(name, v) |> ignore
       | (null, null, hkcu'v, hkcu'rv) ->
-        let superseded = {| level = "recommended"; scope = user; value = hkcu'rv |}
-        acc.TryAdd(name, {| level = "mandatory"; scope = user; superseded = superseded; value = hkcu'v |} :> obj) |> ignore
+        let superseded = {| level = "recommended"; scope = user; value = hkcu'rv |} :> obj
+        let v = {| level = "mandatory"; scope = user; superseded = superseded; value = hkcu'v |} :> obj
+        acc.TryAdd(name, v) |> ignore
       | (hklm'v, null, hkcu'v, null) ->
         let superseded = {| level = "recommended"; scope = user; value = hkcu'rv |}
-        acc.TryAdd(name, {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+        let v = {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj
+        acc.TryAdd(name, v) |> ignore
       | (hklm'v, hklm'rv, hkcu'v, null) -> 
         let superseded = [|
           {| level = "recommended"; scope = machine; value = hklm'rv |} :> obj
           {| level = "mandatory"; scope = user; value = hkcu'v |} |]
-        acc.TryAdd(name, {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+        let v = {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj
+        acc.TryAdd(name, v) |> ignore
       | (hklm'v, null, hkcu'v, hkcu'rv) -> 
         let superseded = [|
           {| level = "recommended"; scope = user; value = hkcu'rv |} :> obj
           {| level = "mandatory"; scope = user; value = hkcu'v |} |]
-        acc.TryAdd(name, {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj) |> ignore
+        let v = {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj
+        acc.TryAdd(name, v) |> ignore
       | (hklm'v, hklm'rv, hkcu'v, hkcu'rv) -> 
         let superseded = [|
           {| level = "recommended"; scope = machine; value = hklm'rv |} :> obj
           {| level = "mandatory"; scope = user; superseded = {| level = "recommended"; scope = user; value = hkcu'rv |}; value = hkcu'v |} |]
-        acc.TryAdd(name, {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj) |> ignore
-
-
-
-
-
-      let v = {| 
-        level = "mandatory"; 
-        scope = "machine"; 
-        superseded = {| level = "recommended"; scope = "machine"; value = hklm'rv |}; 
-        value = hklm'v |}
-      acc.TryAdd(name, v ) |> ignore)
-    
-
-    hklm'mandatory.GetSubKeyNames()
-    |> Array.iter (fun name ->
-      use hklm'mandatory = hklm'mandatory.OpenSubKey(name, false)
-      use hklm'recommended = hklm'recommended.OpenSubKey(name, false)
-      use hkcu'mandatory = hkcu'mandatory.OpenSubKey(name, false)
-      use hkcu'recommended = hkcu'recommended.OpenSubKey(name, false)
-      
-      let hklm'mandatory'value = load hklm'mandatory
-      let hklm'recommended'value = if hklm'recommended <> null then load hklm'recommended else null
-
-      let v = {| 
-        level = "mandatory"; 
-        scope = "machine"; 
-        superseded = {| level = "recommended"; scope = "machine"; value = hklm'recommended'value |}; 
-        value = hklm'mandatory'value |}
-      acc.TryAdd(name, v ) |> ignore)
-
-    hklm'recommended.GetSubKeyNames()
-    |> Array.iter (fun name ->
-      use k = hklm'recommended.OpenSubKey(name, false)
-      let v = {| level = "recommended"; scope = "machine"; value = load k |}
-      acc.TryAdd(name, v ) |> ignore)
+        let v = {| level = "mandatory"; scope = machine; superseded = superseded; value = hklm'v |} :> obj
+        acc.TryAdd(name, v) |> ignore )
     acc
-
-
-    //let f subkey = 
-    //  use mandatory'key = hklm'mandatory.OpenSubKey(subkey)
-    //  use recommended'key = hklm'recommended.OpenSubKey(subkey)
-      
-      
-
-    //  ()
-
-    //let a =
-    //  hklm'mandatory.GetSubKeyNames()
-    //  |> Array.filter (fun n -> not (n.EndsWith "Recommended"))
-    //  |> Array.iter f
-
-
-
-
-
-
-    //use mandatory = Registry.LocalMachine.OpenSubKey(key, false)
-    //if mandatory = null 
-    //then null
-    //else
-    //  let f name =
-    //    let value = mandatory.GetValue(name)
-    //    {| name = name; value = value |} :> obj
-    //  mandatory.GetValueNames() |> Array.map f
-    
-  let dig'(key: string) =
-    let a = getvalues key
-
-    ()
-
 
   // Edge ポリシー情報を取得する.
   let inline fetch () =
@@ -295,11 +223,11 @@
       let xs = dig(hkcu)
       c.AddMany xs
       c.Close()
-      
+    
     let os = fetchWindowsVersion()
     let version = fetchEdgeVersion()
     // SOFTWARE\Policies\Microsoft\Edge
-    let edge' = load edge
+    let edge' = (getvalues edge).Concat(getlistvalues edge).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
     // SOFTWARE\Policies\Microsoft\EdgeUpdate
     let update = load edge'update
     // SOFTWARE\Policies\Microsoft\Edge\WebView2
