@@ -78,7 +78,6 @@
 
       Array.append values children
 
-  // TODO: hkcu 対応
   let inline getvalues (key: string) =
     use hklm'mandatory = Registry.LocalMachine.OpenSubKey(key, false)
     use hklm'recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
@@ -134,6 +133,21 @@
 
   // TODO: 
   let inline getlistvalues (key: string) =
+    use hklm'mandatory = Registry.LocalMachine.OpenSubKey(key, false)
+    use hklm'recommended = Registry.LocalMachine.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
+    use hkcu'mandatory = Registry.CurrentUser.OpenSubKey(key, false)
+    use hkcu'recommended = Registry.CurrentUser.OpenSubKey(System.IO.Path.Combine(key, "Recommended"), false)
+    let acc = System.Collections.Generic.Dictionary<string, obj>()
+    
+    let f (key: RegistryKey) subkey = 
+      use key = key.OpenSubKey(subkey)
+      let v = getvalues key.Name
+      ()
+    let a =
+      hklm'mandatory.GetSubKeyNames()
+      |> Array.filter (fun n -> not (n.EndsWith "Recommended"))
+
+
     use mandatory = Registry.LocalMachine.OpenSubKey(key, false)
     if mandatory = null 
     then null
