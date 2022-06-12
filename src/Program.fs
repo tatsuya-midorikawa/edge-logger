@@ -5,6 +5,7 @@ open System.Diagnostics
 open System.Web
 open System
 open System.Linq
+open System.Collections.Generic
 
 open Reg
 open ConsoleAppFramework
@@ -89,9 +90,23 @@ let main args =
   //|> toJson
   //|> printfn "%s"
 
-  EdgePolicy.fetch ()
+  let dict = Dictionary<string, obj>()
+  //dict.Add ("foo", {| value = "aaa"; id = 0 |})
+  //dict.Add ("bar", {| value = "bbb"; id = 1 |})
+  
+  //dict
+  //|> toJson
+  //|> printfn "%s"
+
+  //EdgePolicy.fetch ()
+  //|> toJson
+  //|> printfn "%s"
+
+  //EdgePolicy.getvalues "SOFTWARE\Policies\Microsoft\Edge""
+  EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
   |> toJson
   |> printfn "%s"
+
 
   0
 
