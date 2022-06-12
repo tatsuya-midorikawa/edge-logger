@@ -107,9 +107,14 @@ let main args =
   //|> toJson
   //|> printfn "%s"
 
+  //EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
+  //|> toJson
+  //|> printfn "%s"
+
+
+  
   EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
-  |> toJson
-  |> printfn "%s"
+  |> Seq.iter (printfn "%A")
 
   0
 
