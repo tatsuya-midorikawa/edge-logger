@@ -108,10 +108,8 @@ let main args =
 
   //EdgePolicy.fetch () |> toJson |> printfn "%s"
 
-  Cmd.exec [| @"cd C:\logs"; "dir > ./dir.logs" |]
-  Cmd.exec [| @"cd C:\logs"; "dir > ./dir1.logs" |]
-  Cmd.exec [| @"cd C:\logs"; "dir > ./dir2.logs" |]
-  printfn "exit"
+  Cmd.exec [| @"cd C:\logs"; "dir" |]
+  |> printfn "%s"
   //EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
   //|> Seq.iter (printfn "%A")
 
