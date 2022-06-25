@@ -85,7 +85,7 @@ let main args =
   //|> toJson
   //|> printfn "%s"
 
-  let dict = Dictionary<string, obj>()
+  //let dict = Dictionary<string, obj>()
   //dict.Add ("foo", {| value = "aaa"; id = 0 |})
   //dict.Add ("bar", {| value = "bbb"; id = 1 |})
   
@@ -106,9 +106,12 @@ let main args =
   //|> toJson
   //|> printfn "%s"
 
-  EdgePolicy.fetch () |> toJson |> printfn "%s"
+  //EdgePolicy.fetch () |> toJson |> printfn "%s"
 
-  
+  Cmd.exec [| @"cd C:\logs"; "dir > ./dir.logs" |]
+  Cmd.exec [| @"cd C:\logs"; "dir > ./dir1.logs" |]
+  Cmd.exec [| @"cd C:\logs"; "dir > ./dir2.logs" |]
+  printfn "exit"
   //EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
   //|> Seq.iter (printfn "%A")
 

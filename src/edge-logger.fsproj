@@ -21,6 +21,7 @@
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="InternetOption.fs" />
     <Compile Include="Winsrv.fs" />
+    <Compile Include="Cmd.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
