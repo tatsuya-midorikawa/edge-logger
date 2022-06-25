@@ -7,7 +7,7 @@ open System
 open System.Linq
 open System.Collections.Generic
 
-open Reg
+open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 

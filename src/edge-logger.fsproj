@@ -20,7 +20,7 @@
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Basic.fs" />
-    <Compile Include="Reg.fs" />
+    <Compile Include="InternetOption.fs" />
     <Compile Include="Winsrv.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
