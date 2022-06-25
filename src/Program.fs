@@ -45,16 +45,11 @@ type Command () =
         IEReg.getIeRegistries () |> toJson |> Logger.output path
       else
         emptyTask
-      
-    let basicTask =
-      let path = Logger.basic'filepath dir
-      Basic.getInfo () |> toJson |> Logger.output path
 
     task {
       do! winsrvTask
       do! edgeTask
       do! ieTask
-      do! basicTask
     }
     |> wait
   
