@@ -56,7 +56,7 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  //let dir = "./"
+  let dir = "./"
   //let winsrvTask =
   //  let path = Logger.winsrv'filepath dir
   //  Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
@@ -108,10 +108,38 @@ let main args =
 
   //EdgePolicy.fetch () |> toJson |> printfn "%s"
 
-  Cmd.exec [| @"cd C:\logs"; "dir" |]
-  |> printfn "%s"
+  //Cmd.exec [| @"cd C:\logs"; "dir" |]
+  //|> printfn "%s"
   //EdgePolicy.getlistvalues "SOFTWARE\Policies\Microsoft\Edge"
   //|> Seq.iter (printfn "%A")
+  
+  //Cmd.dsregcmd
+  //|> Cmd.exec
+  //|> printfn "%s"
+
+  task {
+    let path = Logger.dsregcmd'filepath dir
+    do! Cmd.dsregcmd
+        |> Cmd.exec
+        |> Logger.output path
+  }
+  |> wait
+
+  task {
+    let path = Logger.whoami'filepath dir
+    do! Cmd.whoami
+        |> Cmd.exec
+        |> Logger.output path
+  }
+  |> wait
+
+  task {
+    let path = Logger.cmdkey'filepath dir
+    do! Cmd.cmdkey
+        |> Cmd.exec
+        |> Logger.output path
+  }
+  |> wait
 
   0
 

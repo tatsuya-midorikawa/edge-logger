@@ -2,14 +2,14 @@
 
 open System
 open System.Diagnostics
+open System.Text
 
 let cmd = Environment.GetEnvironmentVariable "ComSpec"
 let dsregcmd = [| "dsregcmd /status" |]
 let whoami = [| "whoami" |]
 let cmdkey = [| "cmdkey /list" |]
 
-let inline exec (cmds: seq<string>) =
-  let exec (cmd: string) (p: Process) = p.StandardInput.WriteLine cmd
+let exec (cmds: seq<string>) =
   let pi = ProcessStartInfo (cmd, 
     // enable commnads input and reading of output
     UseShellExecute = false,
@@ -19,7 +19,11 @@ let inline exec (cmds: seq<string>) =
     CreateNoWindow = true)
 
   use p = Process.Start pi
-  for cmd in cmds do p |> exec cmd
-  p |> exec "exit"
+  let stdout = StringBuilder()
+  p.OutputDataReceived.Add (fun e -> if e.Data <> null then stdout.AppendLine(e.Data) |> ignore)
+  p.BeginOutputReadLine()
+  for cmd in cmds do 
+    p.StandardInput.WriteLine cmd
+  p.StandardInput.WriteLine "exit"
   p.WaitForExit()
-  p.StandardOutput.ReadToEnd()
+  stdout.ToString()
