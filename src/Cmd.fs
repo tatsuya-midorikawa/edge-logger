@@ -4,6 +4,9 @@ open System
 open System.Diagnostics
 
 let cmd = Environment.GetEnvironmentVariable "ComSpec"
+let dsregcmd = [| "dsregcmd /status" |]
+let whoami = [| "whoami" |]
+let cmdkey = [| "cmdkey /list" |]
 
 let inline exec (cmds: seq<string>) =
   let exec (cmd: string) (p: Process) = p.StandardInput.WriteLine cmd
