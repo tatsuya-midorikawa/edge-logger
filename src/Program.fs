@@ -4,14 +4,17 @@ open System.IO
 open System.Diagnostics
 open System.Web
 open System
+open System.Linq
+open System.Collections.Generic
 
-open Reg
+open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
 let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
 let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
-let emptyTask = System.Threading.Tasks.Task.Run<unit>(fun () -> ())
+let inline clear () = System.Console.Clear()
+let empty'task = System.Threading.Tasks.Task.Run<unit>(fun () -> ())
 
 type Command () =
   inherit ConsoleAppBase ()
@@ -21,42 +24,59 @@ type Command () =
     [<Option("w", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("e", "Output Edge policy info.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
+    [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
-    let winsrvTask =
-      if full || winsrv then
-        let path = Logger.winsrv'filepath dir
-        Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
-      else
-        emptyTask
+    let winsrv'task =
+      if full || winsrv
+      then Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir)
+      else empty'task
 
-    let edgeTask =
-      if full || edge then
-        let path = Logger.edge'filepath dir
-        EdgeReg.getEdgeRegistries () |> toJson |> Logger.output path
-      else
-        emptyTask
+    let edge'task =
+      if full || edge 
+      then EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+      else empty'task
 
-    let ieTask =
-      if full || ie then
-        let path = Logger.ie'filepath dir
-        IEReg.getIeRegistries () |> toJson |> Logger.output path
+    let ie'task =
+      if full || ie
+      then IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir)
+      else empty'task
+
+    let usr'task =
+      if full || usr then
+        task {
+          do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir)
+          do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir)
+          do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir)
+          do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir)
+        }
       else
-        emptyTask
-      
-    let basicTask =
-      let path = Logger.basic'filepath dir
-      Basic.getInfo () |> toJson |> Logger.output path
+        empty'task
 
     task {
-      do! winsrvTask
-      do! edgeTask
-      do! ieTask
-      do! basicTask
+      do! winsrv'task
+      do! edge'task
+      do! ie'task
+      do! usr'task
     }
     |> wait
+    
+    Cmd.exec [$"explorer %s{dir}"] |> ignore
   
+#if DEBUG
+[<EntryPoint>]
+let main args =
+  let dir = "./" |> Path.GetFullPath
+  Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
+  clear()
+  Cmd.exec [$"explorer %s{dir}"] |> ignore
+  0
+
+#else
 [<EntryPoint>]
 let main args =
   ConsoleApp.Run<Command>(args)
+  clear()
+  printfn "This process has been completed."
   0
+#endif
