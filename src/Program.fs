@@ -13,6 +13,7 @@ open System.Runtime.InteropServices
 
 let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
 let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
+let inline clear () = System.Console.Clear()
 let empty'task = System.Threading.Tasks.Task.Run<unit>(fun () -> ())
 
 type Command () =
@@ -59,12 +60,18 @@ type Command () =
       do! usr'task
     }
     |> wait
+    
+    clear()
+    printfn "This process has been completed."
+    Cmd.exec [$"explorer %s{dir}"] |> ignore
   
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  let dir = "./"
+  let dir = "./" |> Path.GetFullPath
   Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
+  System.Console.Clear()
+  Cmd.exec [$"explorer %s{dir}"] |> ignore
   0
 
 #else
