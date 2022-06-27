@@ -27,25 +27,19 @@ type Command () =
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let winsrv'task =
-      if full || winsrv then
-        let path = Logger.winsrv'filepath dir
-        Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output path
-      else
-        empty'task
+      if full || winsrv
+      then Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir)
+      else empty'task
 
     let edge'task =
-      if full || edge then
-        let path = Logger.edge'filepath dir
-        EdgePolicy.fetch () |> toJson |> Logger.output path
-      else
-        empty'task
+      if full || edge 
+      then EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+      else empty'task
 
     let ie'task =
-      if full || ie then
-        let path = Logger.ie'filepath dir
-        IEReg.getIeRegistries () |> toJson |> Logger.output path
-      else
-        empty'task
+      if full || ie
+      then IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir)
+      else empty'task
 
     let usr'task =
       if full || usr then
