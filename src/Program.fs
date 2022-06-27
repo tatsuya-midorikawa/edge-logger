@@ -47,6 +47,7 @@ type Command () =
           do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir)
           do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir)
           do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir)
+          do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir)
         }
       else
         empty'task
@@ -146,6 +147,9 @@ let main args =
   //      |> Logger.output path
   //}
   //|> wait
+
+  Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
+
 
   0
 

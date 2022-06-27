@@ -10,6 +10,7 @@ let ie'filepath dir = FilePath (Path.Combine(dir, now, "ie.log"))
 let dsregcmd'filepath dir = FilePath (Path.Combine(dir, now, "os", "dsregcmd.log"))
 let whoami'filepath dir = FilePath (Path.Combine(dir, now, "os", "whoami.log"))
 let cmdkey'filepath dir = FilePath (Path.Combine(dir, now, "os", "cmdkey.log"))
+let hotfix'filepath dir = FilePath (Path.Combine(dir, now, "os", "hotfix.log"))
 
 let inline exists (FilePath path) =
   File.Exists path

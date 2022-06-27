@@ -22,6 +22,7 @@
     <Compile Include="InternetOption.fs" />
     <Compile Include="Winsrv.fs" />
     <Compile Include="Cmd.fs" />
+    <Compile Include="Pwsh.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
