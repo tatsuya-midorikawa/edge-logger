@@ -61,8 +61,6 @@ type Command () =
     }
     |> wait
     
-    clear()
-    printfn "This process has been completed."
     Cmd.exec [$"explorer %s{dir}"] |> ignore
   
 #if DEBUG
@@ -70,7 +68,7 @@ type Command () =
 let main args =
   let dir = "./" |> Path.GetFullPath
   Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
-  System.Console.Clear()
+  clear()
   Cmd.exec [$"explorer %s{dir}"] |> ignore
   0
 
@@ -78,5 +76,7 @@ let main args =
 [<EntryPoint>]
 let main args =
   ConsoleApp.Run<Command>(args)
+  clear()
+  printfn "This process has been completed."
   0
 #endif
