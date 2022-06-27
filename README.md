@@ -11,6 +11,7 @@ Specify command options for log information to be output.
 | -w | Output Windows services logs. |
 | -e | Output Edge policy logs. |
 | -i | Output internet option logs. |
+| -u | Output Logon user info logs. |
 | -f | Output all logs. |
 
 If you want to output all logs, do the following:
