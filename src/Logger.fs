@@ -6,6 +6,8 @@ type FilePath = FilePath of string
 let now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
 let winsrv'filepath dir = FilePath (Path.Combine(dir, now, "winsrv.log"))
 let edge'filepath dir = FilePath (Path.Combine(dir, now, "edge.log"))
+let edge'installer'filepath dir = FilePath (Path.Combine(dir, now, "msedge_update", "msedge_installer.log"))
+let edge'update'filepath dir = FilePath (Path.Combine(dir, now, "msedge_update", "MicrosoftEdgeUpdate.log"))
 let ie'filepath dir = FilePath (Path.Combine(dir, now, "ie.log"))
 let dsregcmd'filepath dir = FilePath (Path.Combine(dir, now, "os", "dsregcmd.log"))
 let whoami'filepath dir = FilePath (Path.Combine(dir, now, "os", "whoami.log"))
@@ -24,9 +26,17 @@ let inline output (FilePath path) (msg: string) =
     Directory.CreateDirectory(dir) |> ignore
     
   if not (exists' path) then 
-    use _ = System.IO.File.Create path
-    ()
+    File.Create(path).Dispose()
 
   task {
-    do! System.IO.File.AppendAllLinesAsync(path, seq { msg })
+    do! File.AppendAllLinesAsync(path, seq { msg })
   }
+
+let inline copy (FilePath dst) (FilePath src) =
+  let dir = Path.GetDirectoryName dst
+  if not (Directory.Exists dir) then
+    Directory.CreateDirectory(dir) |> ignore
+
+  if File.Exists src
+  then File.Copy(src, dst)
+  else File.Create(dst).Dispose()

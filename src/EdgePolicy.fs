@@ -1,8 +1,10 @@
 ﻿module EdgePolicy
 
+  open System
   open System.Text.Json.Serialization
   open System.Collections.Generic
   open System.Linq
+  open System.IO
   open Microsoft.Win32
   open FSharp.Core.CompilerServices
 
@@ -11,6 +13,9 @@
   let current'version = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion"
   [<Literal>]
   let edition'version = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\EditionVersion"
+
+  let installer'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "TEMP", "msedge_installer.log") |> Logger.FilePath
+  let update'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "EdgeUpdate", "Log", "MicrosoftEdgeUpdate.log") |> Logger.FilePath
 
   // OS のバージョン情報を取得する.
   let inline fetchWindowsVersion () =

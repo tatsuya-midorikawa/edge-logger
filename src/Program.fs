@@ -34,7 +34,12 @@ type Command () =
 
     let edge'task =
       if full || edge 
-      then EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+      then
+        task {
+          do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+          EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
+          EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
+        }
       else empty'task
 
     let ie'task =
@@ -43,7 +48,8 @@ type Command () =
       else empty'task
 
     let usr'task =
-      if full || usr then
+      if full || usr
+      then
         task {
           do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir)
           do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir)
@@ -66,10 +72,11 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  let dir = "./" |> Path.GetFullPath
-  Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
-  clear()
-  Cmd.exec [$"explorer %s{dir}"] |> ignore
+  //let dir = "./" |> Path.GetFullPath
+  //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
+  //clear()
+  //Cmd.exec [$"explorer %s{dir}"] |> ignore
+
   0
 
 #else
