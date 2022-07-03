@@ -21,15 +21,19 @@ type Command () =
   [<RootCommand>]
   member __.root(
     [<Option("d", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
-    [<Option("w", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
-    [<Option("e", "Output Edge policy info.");Optional;DefaultParameterValue(false)>] edge: bool,
+    [<Option("w", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("e", "Output Edge settings info.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
     [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let winsrv'task =
       if full || winsrv
-      then Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir)
+      then 
+        task {
+          do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir)
+          do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir)
+         }
       else empty'task
 
     let edge'task =
@@ -76,6 +80,8 @@ let main args =
   //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
   //clear()
   //Cmd.exec [$"explorer %s{dir}"] |> ignore
+
+  System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
 
   0
 

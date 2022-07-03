@@ -6,13 +6,14 @@ type FilePath = FilePath of string
 let now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
 let winsrv'filepath dir = FilePath (Path.Combine(dir, now, "winsrv.log"))
 let edge'filepath dir = FilePath (Path.Combine(dir, now, "edge.log"))
-let edge'installer'filepath dir = FilePath (Path.Combine(dir, now, "msedge_update", "msedge_installer.log"))
-let edge'update'filepath dir = FilePath (Path.Combine(dir, now, "msedge_update", "MicrosoftEdgeUpdate.log"))
+let edge'installer'filepath dir = FilePath (Path.Combine(dir, now, "msedge_installer.log"))
+let edge'update'filepath dir = FilePath (Path.Combine(dir, now, "MicrosoftEdgeUpdate.log"))
 let ie'filepath dir = FilePath (Path.Combine(dir, now, "ie.log"))
 let dsregcmd'filepath dir = FilePath (Path.Combine(dir, now, "os", "dsregcmd.log"))
 let whoami'filepath dir = FilePath (Path.Combine(dir, now, "os", "whoami.log"))
 let cmdkey'filepath dir = FilePath (Path.Combine(dir, now, "os", "cmdkey.log"))
 let hotfix'filepath dir = FilePath (Path.Combine(dir, now, "os", "hotfix.log"))
+let schtasks'filepath dir = FilePath (Path.Combine(dir, now, "schtasks.log"))
 
 let inline exists (FilePath path) =
   File.Exists path

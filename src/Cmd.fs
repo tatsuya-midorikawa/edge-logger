@@ -8,6 +8,7 @@ let cmd = Environment.GetEnvironmentVariable "ComSpec"
 let dsregcmd = [| "dsregcmd /status" |]
 let whoami = [| "whoami" |]
 let cmdkey = [| "cmdkey /list" |]
+let schtasks = [| "schtasks /query /V /FO CSV" |]
 
 let exec (cmds: seq<string>) =
   let pi = ProcessStartInfo (cmd, 
