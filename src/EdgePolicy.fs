@@ -45,6 +45,10 @@
   let edge'update = @"SOFTWARE\Policies\Microsoft\EdgeUpdate"
   [<Literal>]
   let edge'webview2 = @"SOFTWARE\Policies\Microsoft\Edge\WebView2"
+  [<Literal>]
+  let edge'software = @"SOFTWARE\Microsoft\Edge"
+  [<Literal>]
+  let edge'software'wow6432 = @"SOFTWARE\WOW6432Node\Microsoft\Edge"
   
   type Policy = {
     [<JsonPropertyOrder(1)>] name: string
@@ -57,6 +61,7 @@
     [<JsonPropertyOrder(2)>] EdgePolicies : Dictionary<string, obj>
     [<JsonPropertyOrder(3)>] EdgeUpdate : Policy[]
     [<JsonPropertyOrder(4)>] WebView2 : Policy[]
+    [<JsonPropertyOrder(5)>] Software : Dictionary<string, obj>
   }
 
   // ポリシーを再帰的に読み取る.
@@ -237,10 +242,13 @@
     let update = load edge'update
     // SOFTWARE\Policies\Microsoft\Edge\WebView2
     let webview2 = load edge'webview2
+    // SOFTWARE\Microsoft\Edge
+    let software = (getlistvalues edge'software).Concat(getlistvalues edge'software'wow6432).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
 
     {
       Metadata = {| os = os; version = version |}; 
       EdgePolicies = edge'; 
       EdgeUpdate = update; 
       WebView2 = webview2; 
+      Software = software;
     }
