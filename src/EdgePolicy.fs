@@ -18,14 +18,13 @@
   let update'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "EdgeUpdate", "Log", "MicrosoftEdgeUpdate.log") |> Logger.FilePath
 
   // OS のバージョン情報を取得する.
-  let inline fetchWindowsVersion () =
+  let fetchWindowsVersion () =
     use hklm = Registry.LocalMachine.OpenSubKey(current'version, false)
     let name = hklm.GetValue("ProductName") |> string
     let disp = hklm.GetValue("DisplayVersion") |> string
-    use hklm = Registry.LocalMachine.OpenSubKey(edition'version, false)
-    let build = hklm.GetValue("EditionBuildNumber") |> string
-    let qfe = hklm.GetValue("EditionBuildQfe") |> string
-    $"{name} {disp} (build {build}.{qfe})"
+    let build = hklm.GetValue("CurrentBuild") |> string
+    let ubr = hklm.GetValue("UBR") |> string
+    $"{name} {disp} (build {build}.{ubr})"
 
   // Edge のバージョン情報を取得する.
   let inline fetchEdgeVersion () = 
@@ -62,6 +61,7 @@
     [<JsonPropertyOrder(3)>] EdgeUpdate : Policy[]
     [<JsonPropertyOrder(4)>] WebView2 : Policy[]
     [<JsonPropertyOrder(5)>] Software : Dictionary<string, obj>
+    [<JsonPropertyOrder(6)>] SoftwareWow6432 : Dictionary<string, obj>
   }
 
   // ポリシーを再帰的に読み取る.
@@ -221,7 +221,7 @@
     acc
 
   // Edge ポリシー情報を取得する.
-  let inline fetch () =
+  let fetch () =
 
     let load reg =
       let mutable c = ArrayCollector<Policy>()
@@ -243,7 +243,25 @@
     // SOFTWARE\Policies\Microsoft\Edge\WebView2
     let webview2 = load edge'webview2
     // SOFTWARE\Microsoft\Edge
-    let software = (getlistvalues edge'software).Concat(getlistvalues edge'software'wow6432).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
+    let software = (getlistvalues edge'software).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
+    let ext = (getlistvalues (Path.Combine(edge'software, "Extensions"))).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
+    software.TryGetValue("Extensions")
+    |> function 
+        | (true, v) -> 
+          v 
+          |> function :? {| level: string; scope: string; value: Dictionary<string, obj> |} as v -> v.value.TryAdd("Items", ext) | _ -> true
+          |> ignore
+        | (false, _) -> ()
+    // SOFTWARE\Microsoft\Edge\SoftwareWow6432
+    let software'wow6432 = (getlistvalues edge'software'wow6432).Concat(getlistvalues (Path.Combine(edge'software'wow6432, "Extensions"))).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
+    let ext'wow6432 = (getlistvalues (Path.Combine(edge'software, "Extensions"))).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
+    software'wow6432.TryGetValue("Extensions")
+    |> function 
+        | (true, v) -> 
+          v 
+          |> function :? {| level: string; scope: string; value: Dictionary<string, obj> |} as v -> v.value.TryAdd("Items", ext'wow6432) | _ -> true
+          |> ignore
+        | (false, _) -> ()
 
     {
       Metadata = {| os = os; version = version |}; 
@@ -251,4 +269,5 @@
       EdgeUpdate = update; 
       WebView2 = webview2; 
       Software = software;
+      SoftwareWow6432 = software'wow6432;
     }

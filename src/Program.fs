@@ -76,13 +76,18 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  //let dir = "./" |> Path.GetFullPath
+  let dir = "C:\\logs" |> Path.GetFullPath
   //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
   //clear()
   //Cmd.exec [$"explorer %s{dir}"] |> ignore
 
-  System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
-
+  //System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
+  task {
+    do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+    EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
+    EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
+  }
+  |> System.Threading.Tasks.Task.WaitAll 
   0
 
 #else
