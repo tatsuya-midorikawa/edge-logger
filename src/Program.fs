@@ -82,12 +82,16 @@ let main args =
   //Cmd.exec [$"explorer %s{dir}"] |> ignore
 
   //System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
-  task {
-    do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
-    EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
-    EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
-  }
-  |> System.Threading.Tasks.Task.WaitAll 
+  //task {
+  //  do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+  //  EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
+  //  EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
+  //}
+  //|> System.Threading.Tasks.Task.WaitAll 
+
+  Reg.read(Reg.root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  |> toJson
+  |> printfn "%s"
   0
 
 #else

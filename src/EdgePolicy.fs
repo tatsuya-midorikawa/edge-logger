@@ -242,6 +242,7 @@
     let update = load edge'update
     // SOFTWARE\Policies\Microsoft\Edge\WebView2
     let webview2 = load edge'webview2
+    // WIP
     // SOFTWARE\Microsoft\Edge
     let software = (getlistvalues edge'software).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
     let ext = (getlistvalues (Path.Combine(edge'software, "Extensions"))).ToDictionary((fun x -> x.Key), (fun x -> x.Value))
