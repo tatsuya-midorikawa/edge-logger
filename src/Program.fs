@@ -89,7 +89,7 @@ let main args =
   //}
   //|> System.Threading.Tasks.Task.WaitAll 
 
-  Reg.read(Reg.root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  Reg.read (Reg.root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
   |> toJson
   |> printfn "%s"
   0
