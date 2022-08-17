@@ -89,9 +89,19 @@ let main args =
   //}
   //|> System.Threading.Tasks.Task.WaitAll 
 
+  //Reg.read (Reg.root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
   Reg.read (Reg.root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
   |> toJson
   |> printfn "%s"
+
+  //[|
+  //  (Reg.root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  //  (Reg.root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
+  //|]
+  //|> Reg.reads
+  //|> toJson
+  //|> printfn "%s"
+
   0
 
 #else
