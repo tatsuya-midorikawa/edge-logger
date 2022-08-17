@@ -32,7 +32,10 @@ type Command () =
       if full || winsrv
       then 
         task {
+          // Windows Service information
           try do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir) with e -> log e.Message |> wait
+          // Task scheduler information
+          // schtasks /query /V /FO CSV
           try do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir) with e -> log e.Message |> wait
          }
       else empty'task
@@ -41,14 +44,18 @@ type Command () =
       if full || edge 
       then
         task {
+          // edge policy registry
           try do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir) with e -> log e.Message |> wait
+          // msedge_installer.log
           try EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir) with e -> log e.Message |> wait
+          // MicrosoftEdgeUpdate.log
           try EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir) with e -> log e.Message |> wait
         }
       else empty'task
 
     let ie'task =
       if full || ie
+      // internet option registry
       then try IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message
       else empty'task
 
@@ -56,9 +63,13 @@ type Command () =
       if full || usr
       then
         task {
+          // dsregcmd /status
           try do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir) with e -> log e.Message |> wait
+          // whoami
           try do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir) with e -> log e.Message |> wait
+          // cmdkey /list
           try do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir) with e -> log e.Message |> wait
+          // get-hotfix
           try do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir) with e -> log e.Message |> wait
         }
       else
