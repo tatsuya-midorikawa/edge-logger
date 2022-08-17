@@ -27,12 +27,16 @@ type Command () =
     [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
+    let log = Logger.log dir
     let winsrv'task =
       if full || winsrv
       then 
         task {
-          do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir)
-          do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir)
+          // Windows Service information
+          try do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir) with e -> log e.Message |> wait
+          // Task scheduler information
+          // schtasks /query /V /FO CSV
+          try do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir) with e -> log e.Message |> wait
          }
       else empty'task
 
@@ -40,34 +44,42 @@ type Command () =
       if full || edge 
       then
         task {
-          do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
-          EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
-          EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
+          // edge policy registry
+          try do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir) with e -> log e.Message |> wait
+          // msedge_installer.log
+          try EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir) with e -> log e.Message |> wait
+          // MicrosoftEdgeUpdate.log
+          try EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir) with e -> log e.Message |> wait
         }
       else empty'task
 
     let ie'task =
       if full || ie
-      then IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir)
+      // internet option registry
+      then try IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message
       else empty'task
 
     let usr'task =
       if full || usr
       then
         task {
-          do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir)
-          do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir)
-          do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir)
-          do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir)
+          // dsregcmd /status
+          try do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir) with e -> log e.Message |> wait
+          // whoami
+          try do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir) with e -> log e.Message |> wait
+          // cmdkey /list
+          try do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir) with e -> log e.Message |> wait
+          // get-hotfix
+          try do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir) with e -> log e.Message |> wait
         }
       else
         empty'task
 
     task {
-      do! winsrv'task
-      do! edge'task
-      do! ie'task
-      do! usr'task
+      try do! winsrv'task with e -> log e.Message |> wait
+      try do! edge'task with e -> log e.Message |> wait
+      try do! ie'task with e -> log e.Message |> wait
+      try do! usr'task with e -> log e.Message |> wait
     }
     |> wait
     
@@ -76,12 +88,31 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  //let dir = "./" |> Path.GetFullPath
+  let dir = "C:\\logs" |> Path.GetFullPath
   //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
   //clear()
   //Cmd.exec [$"explorer %s{dir}"] |> ignore
 
-  System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
+  //System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
+  //task {
+  //  do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
+  //  EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
+  //  EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
+  //}
+  //|> System.Threading.Tasks.Task.WaitAll 
+
+  //Reg.read (root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
+  Reg.read (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  |> toJson
+  |> printfn "%s"
+
+  //[|
+  //  (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  //  (root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
+  //|]
+  //|> Reg.reads
+  //|> toJson
+  //|> printfn "%s"
 
   0
 

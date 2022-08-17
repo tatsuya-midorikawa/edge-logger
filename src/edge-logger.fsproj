@@ -17,6 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
+    <Compile Include="Reg.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="InternetOption.fs" />
