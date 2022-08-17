@@ -4,6 +4,7 @@ open System.IO
 type FilePath = FilePath of string
 
 let now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
+let err'filepath dir = FilePath (Path.Combine(dir, now, "err.log"))
 let winsrv'filepath dir = FilePath (Path.Combine(dir, now, "winsrv.log"))
 let edge'filepath dir = FilePath (Path.Combine(dir, now, "edge.log"))
 let edge'installer'filepath dir = FilePath (Path.Combine(dir, now, "msedge_installer.log"))
@@ -41,3 +42,7 @@ let inline copy (FilePath dst) (FilePath src) =
   if File.Exists src
   then File.Copy(src, dst)
   else File.Create(dst).Dispose()
+
+let inline log dir msg = 
+  let path = err'filepath dir
+  output path msg
