@@ -102,9 +102,9 @@ let main args =
   //|> System.Threading.Tasks.Task.WaitAll 
 
   //Reg.read (root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
-  Reg.read (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
-  |> toJson
-  |> printfn "%s"
+  //Reg.read (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
+  //|> toJson
+  //|> printfn "%s"
 
   //[|
   //  (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
@@ -113,6 +113,19 @@ let main args =
   //|> Reg.reads
   //|> toJson
   //|> printfn "%s"
+
+  //System.Diagnostics.Process.GetProcesses()
+  //|> Array.filter (fun p -> p.ProcessName = "msedge")
+  //|> Array.map (fun p -> sprintf "taskkill /pid %d" p.Id)
+  //|> Cmd.exec
+  //|> ignore
+
+  [| "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --log-net-log=\"C:\\logs\\export.json\" --net-log-capture-mode=Everything" |]
+  |> Cmd.exec
+  |> ignore
+
+  printfn "test"
+  System.Console.ReadLine() |> printfn "%s"
 
   0
 
