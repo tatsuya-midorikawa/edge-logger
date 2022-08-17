@@ -13,12 +13,6 @@ type regkey = {
       let inline get (key: RegistryKey, name) = Registry.GetValue(key.Name, name, "")
       { name = name; value = get(key, name) } :> obj
 
-let defaultof<'T> = Unchecked.defaultof<'T>
-type root = HKLM = 0 | HKCU = 1
-type dict<'T, 'U> = System.Collections.Generic.Dictionary<'T, 'U>
-type pair = System.Collections.Generic.KeyValuePair<string, obj> 
-type target = seq<root * string>
-
 let read (root: root, path: string) =
   let inline combine (s1, s2) = Path.Combine(s1, s2)
   
@@ -45,7 +39,7 @@ let read (root: root, path: string) =
     acc.TryAdd(key.Name, value) |> ignore
   acc
 
-let reads (ls: target) =
+let reads (ls: regs) =
   let inline combine (s1, s2) = Path.Combine(s1, s2)
   
   let rec read (root: root, path: string) =
