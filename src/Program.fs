@@ -25,6 +25,7 @@ type Command () =
     [<Option("e", "Output Edge settings info.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
     [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
+    [<Option("nx", "Collecting net-export logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let log = Logger.log dir
@@ -75,6 +76,7 @@ type Command () =
       else
         empty'task
 
+    // Collection of various configuration information.
     task {
       try do! winsrv'task with e -> log e.Message |> wait
       try do! edge'task with e -> log e.Message |> wait
@@ -83,6 +85,22 @@ type Command () =
     }
     |> wait
     
+    // Collecting net-export logs.
+    if netexport then
+      try 
+        try
+          let readkey() = System.Console.ReadKey()
+          let rec judge () =
+            printfn "Entry (y) to exit."
+            match readkey().Key with ConsoleKey.Y -> () | _ -> judge()
+          Cmd.psr'start dir |> Cmd.exec |> ignore
+          Cmd.netexport dir |> Cmd.exec |> ignore
+          judge ()
+        with
+          e -> log e.Message |> wait
+      finally
+        Cmd.psr'stop |> Cmd.exec |> ignore
+        
     Cmd.exec [$"explorer %s{dir}"] |> ignore
   
 #if DEBUG
