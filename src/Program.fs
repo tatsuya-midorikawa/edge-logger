@@ -1,4 +1,4 @@
-﻿open System.Text.Json
+﻿
 open Microsoft.Win32
 open System.IO
 open System.Diagnostics
@@ -10,11 +10,6 @@ open System.Collections.Generic
 open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
-
-let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.Tasks.Task.WaitAll (task)
-let inline toJson<'T> (object: 'T) = JsonSerializer.Serialize(object, JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
-let inline clear () = System.Console.Clear()
-let empty'task = System.Threading.Tasks.Task.Run<unit>(fun () -> ())
 
 type Command () =
   inherit ConsoleAppBase ()
@@ -144,12 +139,15 @@ let main args =
   //|> Cmd.exec
   //|> ignore
 
-  [| "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --log-net-log=\"C:\\logs\\export.json\" --net-log-capture-mode=Everything" |]
-  |> Cmd.exec
-  |> ignore
+  //[| "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --log-net-log=\"C:\\logs\\export.json\" --net-log-capture-mode=Everything" |]
+  //|> Cmd.exec
+  //|> ignore
 
-  printfn "test"
-  System.Console.ReadLine() |> printfn "%s"
+  //printfn "test"
+  //System.Console.ReadLine() |> printfn "%s"
+
+
+  IEDigest.download @"C:\logs"
 
   0
 

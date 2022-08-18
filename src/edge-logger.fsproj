@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="IEDigest.fs" />
     <Compile Include="Reg.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="EdgePolicy.fs" />
