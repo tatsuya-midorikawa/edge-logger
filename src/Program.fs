@@ -29,7 +29,12 @@ type Command () =
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
-    let log = Logger.log dir
+    let log = Logger.log dir    
+    let inline readkey() = System.Console.ReadKey()
+    let rec wait'for'input () =
+      printfn "Entry (y) to exit."
+      match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
+
     let winsrv'task =
       if full || winsrv
       then 
@@ -93,10 +98,6 @@ type Command () =
     // Collecting net-export logs.
     if netexport then
       try
-        let readkey() = System.Console.ReadKey()
-        let rec wait'for'input () =
-          printfn "Entry (y) to exit."
-          match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
         Cmd.netexport dir |> Cmd.exec |> ignore
         wait'for'input ()
       with
