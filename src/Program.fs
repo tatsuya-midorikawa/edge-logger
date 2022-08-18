@@ -20,7 +20,7 @@ type Command () =
   inherit ConsoleAppBase ()
   [<RootCommand>]
   member __.root(
-    [<Option("d", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
+    [<Option("o", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
     [<Option("w", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("e", "Output Edge settings info.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
