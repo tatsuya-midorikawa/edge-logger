@@ -86,6 +86,7 @@ type Command () =
     }
     |> wait
     
+    // start PSR
     if netexport || psr then 
       Cmd.psr'start dir |> Cmd.exec |> ignore
       
@@ -101,6 +102,7 @@ type Command () =
       with
         e -> log e.Message |> wait
        
+    // stop PSR
     if netexport || psr then 
       Cmd.psr'stop |> Cmd.exec |> ignore
 
