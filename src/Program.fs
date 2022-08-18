@@ -26,6 +26,7 @@ type Command () =
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
     [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
     [<Option("nx", "Collecting net-export logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
+    [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let log = Logger.log dir
@@ -85,7 +86,7 @@ type Command () =
     }
     |> wait
     
-    if netexport then 
+    if netexport || psr then 
       Cmd.psr'start dir |> Cmd.exec |> ignore
       
     // Collecting net-export logs.
@@ -100,7 +101,7 @@ type Command () =
       with
         e -> log e.Message |> wait
        
-    if netexport then 
+    if netexport || psr then 
       Cmd.psr'stop |> Cmd.exec |> ignore
 
     Cmd.exec [$"explorer %s{dir}"] |> ignore
