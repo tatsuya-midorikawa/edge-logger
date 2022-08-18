@@ -85,22 +85,24 @@ type Command () =
     }
     |> wait
     
+    if netexport then 
+      Cmd.psr'start dir |> Cmd.exec |> ignore
+      
     // Collecting net-export logs.
     if netexport then
-      try 
-        try
-          let readkey() = System.Console.ReadKey()
-          let rec judge () =
-            printfn "Entry (y) to exit."
-            match readkey().Key with ConsoleKey.Y -> () | _ -> judge()
-          Cmd.psr'start dir |> Cmd.exec |> ignore
-          Cmd.netexport dir |> Cmd.exec |> ignore
-          judge ()
-        with
-          e -> log e.Message |> wait
-      finally
-        Cmd.psr'stop |> Cmd.exec |> ignore
-        
+      try
+        let readkey() = System.Console.ReadKey()
+        let rec wait'for'input () =
+          printfn "Entry (y) to exit."
+          match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
+        Cmd.netexport dir |> Cmd.exec |> ignore
+        wait'for'input ()
+      with
+        e -> log e.Message |> wait
+       
+    if netexport then 
+      Cmd.psr'stop |> Cmd.exec |> ignore
+
     Cmd.exec [$"explorer %s{dir}"] |> ignore
   
 #if DEBUG
