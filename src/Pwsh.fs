@@ -3,9 +3,22 @@
 open System
 open System.Diagnostics
 open System.Text
+open System.IO
 
 let pwsh = "powershell"
 let hotfix = [| "get-hotfix" |]
+let inline unzip (zip: string) =
+  if Path.GetExtension zip = ".zip" 
+  then
+    let dir = Path.GetDirectoryName zip
+    [| 
+      $"Expand-Archive -Force \"{zip}\" \"{dir}\""
+      $"Remove-Item -Path \"{zip}\" -Force"
+    |]
+   else
+    [||]
+let remove target = [| $"Remove-Item -Path \"{target}\" -Force" |]
+
 
 let exec (cmds: seq<string>) =
   let pi = ProcessStartInfo (pwsh, 

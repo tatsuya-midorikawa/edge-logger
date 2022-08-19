@@ -148,6 +148,9 @@ let main args =
 
 
   IEDigest.download @"C:\logs"
+  |> Pwsh.unzip
+  |> Pwsh.exec
+  |> ignore
 
   0
 

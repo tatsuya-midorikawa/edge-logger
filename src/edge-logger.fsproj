@@ -18,14 +18,14 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="Cmd.fs" />
+    <Compile Include="Pwsh.fs" />
     <Compile Include="IEDigest.fs" />
     <Compile Include="Reg.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="InternetOption.fs" />
     <Compile Include="Winsrv.fs" />
-    <Compile Include="Cmd.fs" />
-    <Compile Include="Pwsh.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
