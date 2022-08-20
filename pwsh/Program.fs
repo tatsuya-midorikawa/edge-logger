@@ -1,9 +1,8 @@
 ﻿open System.IO.Pipes
 open System.Diagnostics
 
-let pipe'name =
-  let pid = Process.GetCurrentProcess().Id
-  $"jp.dsi.pwsh.{pid}"
+[<Literal>]
+let pipe'name = $"jp.dsi.pwsh.15632680-eedf-418a-aa2a-334dbb121d38"
 
 [<EntryPoint>]
 let main args =
