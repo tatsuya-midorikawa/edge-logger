@@ -162,6 +162,8 @@ let main args =
   //Cmd.dsregcmd |> Cmd.run'as true |> printfn "%s"
   //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
 
+  Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
+
   0
 
 #else

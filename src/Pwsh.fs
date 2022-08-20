@@ -5,8 +5,15 @@ open System.Diagnostics
 open System.Text
 open System.IO
 
+// FYI: Elevating privileges doesn't work with UseShellExecute=false
+// https://stackoverflow.com/questions/3596259/elevating-privileges-doesnt-work-with-useshellexecute-false
+
 let pwsh = "powershell"
 let hotfix = [| "get-hotfix" |]
+// Disable Hardware-enforced Stack Protection
+let set'hesp enabled = 
+  let enabled = if enabled then "-enable" else "-disable"
+  [| $"Set-ProcessMitigation -name msedge.exe {enabled} UserShadowStack" |]
 let inline unzip (zip: string) =
   if Path.GetExtension zip = ".zip" 
   then
