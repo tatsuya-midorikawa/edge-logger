@@ -18,14 +18,16 @@ let psr'start dir =
   [| $@"psr /start /output ""{path}"" /maxsc 999 /gui 0" |]
 let psr'stop = [| $@"psr /stop" |]
 
-let exec (cmds: seq<string>) =
+let run'as (admin: bool) (cmds: seq<string>)  =
   let pi = ProcessStartInfo (cmd, 
     // enable commnads input and reading of output
     UseShellExecute = false,
     RedirectStandardInput = true,
     RedirectStandardOutput = true,
     // hide console window
-    CreateNoWindow = true)
+    CreateNoWindow = true,
+    // run as adminstrator
+    Verb = if admin then "runas" else "")
 
   use p = Process.Start pi
   let stdout = StringBuilder()
@@ -36,3 +38,5 @@ let exec (cmds: seq<string>) =
   p.StandardInput.WriteLine "exit"
   p.WaitForExit()
   stdout.ToString()
+
+let exec (cmds: seq<string>) = cmds |> run'as false

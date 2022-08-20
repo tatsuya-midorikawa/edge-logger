@@ -153,10 +153,14 @@ let main args =
   //|> ignore
 
 
-  IEDigest.download @"C:\logs"
-  |> Pwsh.unzip
-  |> Pwsh.run'as true
-  |> ignore
+  //IEDigest.download @"C:\logs"
+  //|> Pwsh.unzip
+  //|> Pwsh.run'as true
+  //|> ignore
+
+
+  //Cmd.dsregcmd |> Cmd.run'as true |> printfn "%s"
+  //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
 
   0
 
