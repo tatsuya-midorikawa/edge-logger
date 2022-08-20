@@ -19,15 +19,16 @@ let inline unzip (zip: string) =
     [||]
 let remove target = [| $"Remove-Item -Path \"{target}\" -Force" |]
 
-
-let exec (cmds: seq<string>) =
+let run'as (admin: bool) (cmds: seq<string>)  =
   let pi = ProcessStartInfo (pwsh, 
     // enable commnads input and reading of output
     UseShellExecute = false,
     RedirectStandardInput = true,
     RedirectStandardOutput = true,
     // hide console window
-    CreateNoWindow = true)
+    CreateNoWindow = true,
+    // run as adminstrator
+    Verb = if admin then "runas" else "")
 
   use p = Process.Start pi
   let stdout = StringBuilder()
@@ -38,3 +39,5 @@ let exec (cmds: seq<string>) =
   p.StandardInput.WriteLine "exit"
   p.WaitForExit()
   stdout.ToString()
+
+let exec (cmds: seq<string>) = cmds |> run'as false

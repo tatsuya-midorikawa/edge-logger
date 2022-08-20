@@ -147,9 +147,15 @@ let main args =
   //System.Console.ReadLine() |> printfn "%s"
 
 
+  //IEDigest.download @"C:\logs"
+  //|> Pwsh.unzip
+  //|> Pwsh.exec
+  //|> ignore
+
+
   IEDigest.download @"C:\logs"
   |> Pwsh.unzip
-  |> Pwsh.exec
+  |> Pwsh.run'as true
   |> ignore
 
   0
