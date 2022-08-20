@@ -1,16 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+		<RootNamespace>jp.dsi.logger.misc</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Misc\Misc.fsproj" />
+    <Compile Include="Pipes.fs" />
   </ItemGroup>
 
 </Project>

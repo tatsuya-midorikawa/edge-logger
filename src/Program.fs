@@ -1,4 +1,5 @@
-﻿
+﻿open jp.dsi.logger.misc
+
 open Microsoft.Win32
 open System.IO
 open System.Diagnostics
@@ -162,8 +163,14 @@ let main args =
   //Cmd.dsregcmd |> Cmd.run'as true |> printfn "%s"
   //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
 
-  Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
-
+  //Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
+  use client = Pipes.create'client()
+  try
+    client.Connect()
+    client |> Pipes.write "test message"
+    client |> Pipes.write "/exit"
+  finally
+    client.Close()
   0
 
 #else
