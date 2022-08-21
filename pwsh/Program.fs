@@ -2,20 +2,31 @@
 open System.IO.Pipes
 open System.Diagnostics
 open System.Threading.Tasks
+open System.Collections.Concurrent
+open System.Text
 
-[<Literal>]
-let pipe'name = $"jp.dsi.logger.15632680-eedf-418a-aa2a-334dbb121d38"
+let private queue = ConcurrentQueue<string>()
+
+let private psi = ProcessStartInfo ("powershell", 
+   // enable commnads input and reading of output
+   UseShellExecute = false,
+   RedirectStandardInput = true,
+   RedirectStandardOutput = true,
+   // hide console window
+   CreateNoWindow = true)
+
+let pwsh = Process.Start psi
+let stdout = StringBuilder()
+pwsh.OutputDataReceived.Add (fun e -> if e.Data <> null then stdout.AppendLine(e.Data) |> ignore)
 
 [<EntryPoint>]
 let main args =
-  //use pipe'srv = new NamedPipeServerStream(pipe'name, PipeDirection.InOut)
-  use pipe'srv = Pipes.create'server()
+  use pipe'srv = Pipes.create'pwsh'server()
   try
     pipe'srv.WaitForConnection()
 
     let mutable is'break = false
     while not is'break do
-      //let cmd = IO.read pipe'srv
       let cmd = Pipes.read pipe'srv
       match cmd with
       // wait to recive message.
@@ -24,12 +35,15 @@ let main args =
         // exit pwsh.
         if cmd.StartsWith "/exit" then 
           is'break <- true
-          pipe'srv.Close()
         // TODO: execute command.
         else
+          queue.Enqueue cmd
           printfn "%s" cmd
-
-    printfn "exit"
+    
+    // return result value
+    Pipes.write (stdout.ToString()) pipe'srv
   finally
     pipe'srv.Close()
+    pwsh.Close()
+    pwsh.Dispose()
   0

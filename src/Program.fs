@@ -164,11 +164,13 @@ let main args =
   //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
 
   //Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
-  use client = Pipes.create'client()
+  use client = Pipes.create'pwsh'client()
   try
     client.Connect()
     client |> Pipes.write "test message"
     client |> Pipes.write "/exit"
+    client |> Pipes.read |> printfn "%s"
+    printfn "fin."
   finally
     client.Close()
   0
