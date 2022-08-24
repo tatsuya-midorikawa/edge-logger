@@ -12,6 +12,8 @@ open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
+let exists process'name = 0 < Process.GetProcessesByName(process'name).Length
+
 type Command () =
   inherit ConsoleAppBase ()
   [<RootCommand>]
@@ -102,6 +104,7 @@ type Command () =
     // stop PSR
     if netexport || psr then 
       Cmd.psr'stop |> Cmd.exec |> ignore
+    
 
     Cmd.exec [$"explorer %s{dir}"] |> ignore
   
@@ -164,15 +167,27 @@ let main args =
   //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
 
   //Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
-  use client = Pipes.create'pwsh'client()
-  try
-    client.Connect()
-    client |> Pipes.write "test message"
-    client |> Pipes.write "/exit"
-    client |> Pipes.read |> printfn "%s"
-    printfn "fin."
-  finally
-    client.Close()
+  //Pwsh.rem'hesp () |> Pwsh.run'as
+
+  //use client = Pipes.create'pwsh'client()
+  //try
+  //  client.Connect()
+  //  client |> Pipes.write "test message"
+  //  client |> Pipes.write "/exit"
+  //  client |> Pipes.read |> printfn "%s"
+  //  printfn "fin."
+  //finally
+  //  client.Close()
+  
+  //Process.GetProcessesByName("msedge")
+  //|> Array.map (fun p -> p.ProcessName)
+  //|> Array.iter (printfn "%s")
+  
+  //Process.GetProcessesByName("iexplore")
+  //|> Array.map (fun p -> p.ProcessName)
+  //|> Array.iter (printfn "%s")
+
+
   0
 
 #else

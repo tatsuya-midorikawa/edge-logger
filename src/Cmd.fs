@@ -18,16 +18,29 @@ let psr'start dir =
   [| $@"psr /start /output ""{path}"" /maxsc 999 /gui 0" |]
 let psr'stop = [| $@"psr /stop" |]
 
-let run'as (admin: bool) (cmds: seq<string>)  =
+// TODO:
+// 1. Add cmd project.
+// 2. Develop cmd that can be connected with named pipelines.
+// 3. Replaced by a process using it.
+let run'as (cmd: string)  =
+  let pi = ProcessStartInfo (cmd, 
+    UseShellExecute = true,
+    // hide console window
+    CreateNoWindow = true,
+    // run as adminstrator
+    Verb = "runas")
+
+  use p = Process.Start pi
+  p.WaitForExit()
+
+let exec (cmds: seq<string>) =
   let pi = ProcessStartInfo (cmd, 
     // enable commnads input and reading of output
     UseShellExecute = false,
     RedirectStandardInput = true,
     RedirectStandardOutput = true,
     // hide console window
-    CreateNoWindow = true,
-    // run as adminstrator
-    Verb = if admin then "runas" else "")
+    CreateNoWindow = true)
 
   use p = Process.Start pi
   let stdout = StringBuilder()
@@ -38,5 +51,3 @@ let run'as (admin: bool) (cmds: seq<string>)  =
   p.StandardInput.WriteLine "exit"
   p.WaitForExit()
   stdout.ToString()
-
-let exec (cmds: seq<string>) = cmds |> run'as false
