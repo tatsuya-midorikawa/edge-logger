@@ -12,7 +12,11 @@ open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
-let exists process'name = 0 < Process.GetProcessesByName(process'name).Length
+let inline exists process'name = 0 < Process.GetProcessesByName(process'name).Length
+let inline readkey() = System.Console.ReadKey()
+let rec wait'for'input () =
+  printfn "Entry (y) to exit."
+  match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
 
 type Command () =
   inherit ConsoleAppBase ()
@@ -28,10 +32,6 @@ type Command () =
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let log = Logger.log dir    
-    let inline readkey() = System.Console.ReadKey()
-    let rec wait'for'input () =
-      printfn "Entry (y) to exit."
-      match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
 
     let winsrv'task =
       if full || winsrv
@@ -104,7 +104,6 @@ type Command () =
     // stop PSR
     if netexport || psr then 
       Cmd.psr'stop |> Cmd.exec |> ignore
-    
 
     Cmd.exec [$"explorer %s{dir}"] |> ignore
   

@@ -12,6 +12,8 @@ Specify command options for log information to be output.
 | -e | Output Edge policy logs. |
 | -i | Output internet option logs. |
 | -u | Output Logon user info logs. |
+| -nx | Collecting net-export and psr logs. |
+| -psr | Collecting psr logs. |
 | -f | Output all logs. |
 
 If you want to output all logs, do the following:
@@ -30,10 +32,10 @@ To change it, specify the following options:
 
 | option | description |
 | :-- | :-- |
-| -d &lt;path&gt; | Specify the output directory for log. |
+| -o &lt;path&gt; | Specify the output directory for log. |
 
 For example:
 
 ```cmd
-edge-logger.exe -d "C:\dist\output"
+edge-logger.exe -o "C:\dist\output"
 ```
