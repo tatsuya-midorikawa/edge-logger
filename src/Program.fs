@@ -31,10 +31,6 @@ type Command () =
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
-    Console.CancelKeyPress.Add(fun _ ->
-      if psr || netexport then
-        Cmd.psr'stop |> Cmd.exec |> ignore)
-    
     let log = Logger.log dir
     let root = Logger.root'dir dir
 
@@ -94,23 +90,28 @@ type Command () =
     }
     |> wait
     
-    // start PSR
-    if netexport || psr then 
-      Cmd.psr'start root |> Cmd.exec |> ignore
-      
-    // Collecting net-export logs.
-    if netexport then
-      try
-        Cmd.netexport root |> Cmd.exec |> ignore
-        wait'for'input ()
-      with
-        e -> log e.Message |> wait
-       
-    // stop PSR
-    if netexport || psr then 
-      Cmd.psr'stop |> Cmd.exec |> ignore
+    // Determine if logging is possible
+    if netexport && not (exists "msedge") then ()
+    else
+      Console.CancelKeyPress.Add(fun _ -> if psr || netexport then Cmd.psr'stop |> Cmd.exec |> ignore)
 
-    Cmd.exec [$"explorer %s{dir}"] |> ignore
+      // start PSR
+      if netexport || psr then 
+        Cmd.psr'start root |> Cmd.exec |> ignore
+      
+      // Collecting net-export logs.
+      if netexport then
+        try
+          Cmd.netexport root |> Cmd.exec |> ignore
+          wait'for'input ()
+        with
+          e -> log e.Message |> wait
+       
+      // stop PSR
+      if netexport || psr then 
+        Cmd.psr'stop |> Cmd.exec |> ignore
+
+      Cmd.exec [$"explorer %s{dir}"] |> ignore
   
 #if DEBUG
 [<EntryPoint>]
