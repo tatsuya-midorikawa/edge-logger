@@ -62,7 +62,11 @@ type Command () =
     let ie'task =
       if full || ie
       // internet option registry
-      then try IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message
+      then
+        task {
+          try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message |> wait
+          // TODO: Add IEDigest
+        }
       else empty'task
 
     let usr'task =
