@@ -1,9 +1,8 @@
 ﻿module Logger
 open System.IO
 
-type FilePath = FilePath of string
-
 let now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
+let root'dir dir = FilePath (Path.Combine(dir, now))
 let err'filepath dir = FilePath (Path.Combine(dir, now, "err.log"))
 let winsrv'filepath dir = FilePath (Path.Combine(dir, now, "winsrv.log"))
 let edge'filepath dir = FilePath (Path.Combine(dir, now, "edge.log"))

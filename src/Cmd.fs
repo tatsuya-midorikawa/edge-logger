@@ -10,10 +10,10 @@ let dsregcmd = [| "dsregcmd /status" |]
 let whoami = [| "whoami" |]
 let cmdkey = [| "cmdkey /list" |]
 let schtasks = [| "schtasks /query /V /FO CSV" |]
-let netexport dir = 
+let netexport  (FilePath dir) = 
   let nxpath = Path.Combine (dir, "export.json")
   [| $@"""C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"" --log-net-log=""{nxpath}"" --net-log-capture-mode=Everything --no-sandbox" |]
-let psr'start dir = 
+let psr'start (FilePath dir) = 
   let path = Path.Combine (dir, "psr.zip")
   [| $@"psr /start /output ""{path}"" /maxsc 999 /gui 0" |]
 let psr'stop = [| $@"psr /stop" |]

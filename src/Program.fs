@@ -31,7 +31,12 @@ type Command () =
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
-    let log = Logger.log dir    
+    Console.CancelKeyPress.Add(fun _ ->
+      if psr || netexport then
+        Cmd.psr'stop |> Cmd.exec |> ignore)
+    
+    let log = Logger.log dir
+    let root = Logger.root'dir dir
 
     let winsrv'task =
       if full || winsrv
@@ -91,12 +96,12 @@ type Command () =
     
     // start PSR
     if netexport || psr then 
-      Cmd.psr'start dir |> Cmd.exec |> ignore
+      Cmd.psr'start root |> Cmd.exec |> ignore
       
     // Collecting net-export logs.
     if netexport then
       try
-        Cmd.netexport dir |> Cmd.exec |> ignore
+        Cmd.netexport root |> Cmd.exec |> ignore
         wait'for'input ()
       with
         e -> log e.Message |> wait

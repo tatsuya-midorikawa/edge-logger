@@ -14,8 +14,8 @@
   [<Literal>]
   let edition'version = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\EditionVersion"
 
-  let installer'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "TEMP", "msedge_installer.log") |> Logger.FilePath
-  let update'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "EdgeUpdate", "Log", "MicrosoftEdgeUpdate.log") |> Logger.FilePath
+  let installer'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "TEMP", "msedge_installer.log") |> FilePath
+  let update'log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Microsoft", "EdgeUpdate", "Log", "MicrosoftEdgeUpdate.log") |> FilePath
 
   // OS のバージョン情報を取得する.
   let fetchWindowsVersion () =
