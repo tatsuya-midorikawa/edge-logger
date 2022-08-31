@@ -6,7 +6,7 @@ open System.IO
 let http = new HttpClient()
 
 let inline download dir =
-
+  let dir = Path.GetFullPath dir
   let ep = "https://aka.ms/iedigest"
   let dst = Path.Combine(dir, "iedigest.zip")
   let file = Path.Combine(dir, "iedigest.exe")

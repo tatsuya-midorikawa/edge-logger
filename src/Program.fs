@@ -165,6 +165,9 @@ let main args =
   //|> Pwsh.exec
   //|> ignore
 
+  //"./"
+  //|> Path.GetFullPath
+  //|> printfn "%s"
 
   //IEDigest.download @"C:\logs"
   //|> Pwsh.unzip

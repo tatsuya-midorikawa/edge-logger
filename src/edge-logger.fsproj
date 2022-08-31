@@ -2,18 +2,20 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>jp.dsi.logger</RootNamespace>
 		<Version>0.0.2</Version>
     <Copyright>© 2022 Tatsuya Midorikawa. All rights rserved</Copyright>
     <AssemblyName>edge-logger</AssemblyName>
-		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <BaseOutputPath>..\bin</BaseOutputPath>
+
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishTrimmed>true</PublishTrimmed>-->
+		<!--<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
+		<!--<PublishTrimmed>true</PublishTrimmed>-->
   </PropertyGroup>
 
   <ItemGroup>

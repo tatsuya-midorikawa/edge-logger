@@ -3,7 +3,17 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
+		<RootNamespace>jp.dsi.logger.pwsh</RootNamespace>
     <UseWindowsForms>True</UseWindowsForms>
+    <BaseOutputPath>..\bin</BaseOutputPath>
+
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<!--<PublishTrimmed>true</PublishTrimmed>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
   </PropertyGroup>
 
   <ItemGroup>
