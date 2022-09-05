@@ -27,6 +27,7 @@
     <Compile Include="Cmd.fs" />
     <Compile Include="Pwsh.fs" />
     <Compile Include="IEDigest.fs" />
+    <Compile Include="Env.fs" />
     <Compile Include="Reg.fs" />
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="InternetOption.fs" />

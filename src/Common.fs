@@ -28,5 +28,6 @@ let inline toJson<'T> (object: 'T) = System.Text.Json.JsonSerializer.Serialize(o
 // System.IO
 let inline exists path = System.IO.File.Exists path
 let inline get'fpath path = System.IO.Path.GetFullPath path
+let inline get'dir (FilePath file) = System.IO.Path.GetDirectoryName file
 let inline create'dir dir = if not (System.IO.Directory.Exists dir) then System.IO.Directory.CreateDirectory(dir) |> ignore
 let combine = System.IO.Path.Combine >> FilePath

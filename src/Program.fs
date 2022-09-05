@@ -26,7 +26,7 @@ type Command () =
     [<Option("w", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("e", "Output Edge settings info.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
-    [<Option("u", "Output Logon user info.");Optional;DefaultParameterValue(false)>] usr: bool,
+    [<Option("u", "Output Logon user info and enviroment info.");Optional;DefaultParameterValue(false)>] usr: bool,
     [<Option("nx", "Collecting net-export logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
@@ -80,13 +80,17 @@ type Command () =
       then
         task {
           // dsregcmd /status
-          try do! Cmd.dsregcmd |> Cmd.exec |> Logger.output (Logger.dsregcmd'filepath dir) with e -> log e.Message |> wait
+          try do! Env.output'dsregcmd dir  with e -> log e.Message |> wait
           // whoami
-          try do! Cmd.whoami |> Cmd.exec |> Logger.output (Logger.whoami'filepath dir) with e -> log e.Message |> wait
+          try do! Env.output'whoami dir  with e -> log e.Message |> wait
           // cmdkey /list
-          try do! Cmd.cmdkey |> Cmd.exec |> Logger.output (Logger.cmdkey'filepath dir) with e -> log e.Message |> wait
+          try do! Env.output'cmdkey dir  with e -> log e.Message |> wait
           // get-hotfix
-          try do! Pwsh.hotfix |> Pwsh.exec |> Logger.output (Logger.hotfix'filepath dir) with e -> log e.Message |> wait
+          try do! Env.output'hotfix dir  with e -> log e.Message |> wait
+          // systeminfo
+          try do! Env.output'systeminfo dir  with e -> log e.Message |> wait
+          // qfe list
+          try do! Env.output'qfe dir  with e -> log e.Message |> wait
         }
       else
         empty'task
