@@ -12,6 +12,7 @@ open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
+let current'dir = Path.GetFullPath "./"
 let inline exists process'name = 0 < Process.GetProcessesByName(process'name).Length
 let inline readkey() = System.Console.ReadKey()
 let rec wait'for'input () =
@@ -66,6 +67,7 @@ type Command () =
         task {
           try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message |> wait
           // TODO: Add IEDigest
+          IEDigest.downloads'if'it'doesnt'exist current'dir |> ignore
         }
       else empty'task
 
@@ -205,8 +207,11 @@ let main args =
 #else
 [<EntryPoint>]
 let main args =
-  ConsoleApp.Run<Command>(args)
-  clear()
+
+  current'dir |> (IEDigest.download >> ignore)
+
+  //ConsoleApp.Run<Command>(args)
+  //clear()
   printfn "This process has been completed."
   0
 #endif
