@@ -1,19 +1,18 @@
 ﻿module IEDigest
 
-open System.Net.Http
 open System.IO
 
-let http = new HttpClient()
-let inline exists path = File.Exists path
+let private combine = System.IO.Path.Combine
+let private iedigest'zip = [| current'dir; "iedigest.zip" |] |> combine
+let private iedigest'exe = [| current'dir; "iedigest.exe" |] |> combine
 
-let inline downloads'if'it'doesnt'exist dir =
-  let dir = Path.GetFullPath dir
+let downloads'if'it'doesnt'exist () =
+  let dir = current'dir
   let ep = "https://aka.ms/iedigest"
-  let dst = Path.Combine(dir, "iedigest.zip")
-  let file = Path.Combine(dir, "iedigest.exe")
+  let dst = iedigest'zip
+  let file = iedigest'exe
   if exists file 
   then
-    printfn "iedigest.exe exists"
     file
   else
     try
@@ -30,3 +29,16 @@ let inline downloads'if'it'doesnt'exist dir =
     |> wait
     dst |> (Pwsh.unzip >> Pwsh.exec >> ignore)
     file
+
+let output dir =
+  if exists iedigest'exe
+  then
+    let dst = [| Logger.root'dir'path dir; "ie" |] |> combine
+    dst |> create'dir
+    [| $"{iedigest'exe} /accepteula /report {dst}" |]
+    |> (Cmd.exec >> ignore)
+  else
+    raise (exn "iedigest.exe does not exist.")
+
+let clean () = if exists iedigest'exe then iedigest'exe |> (Pwsh.remove >> Pwsh.exec >> ignore) else ()
+    

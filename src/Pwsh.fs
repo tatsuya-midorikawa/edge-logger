@@ -26,7 +26,7 @@ let inline unzip (zip: string) =
     |]
    else
     [||]
-let remove target = [| $"Remove-Item -Path \"{target}\" -Force" |]
+let remove target = [| $"Remove-Item -Path \"%s{target}\" -Force" |]
 
 // TODO:
 // 1. Replaced by a process using the pwsh.

@@ -7,11 +7,12 @@
     <UseWindowsForms>True</UseWindowsForms>
     <BaseOutputPath>..\bin</BaseOutputPath>
 
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishReadyToRun>true</PublishReadyToRun>-->
+
 		<!--<PublishTrimmed>true</PublishTrimmed>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
   </PropertyGroup>

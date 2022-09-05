@@ -1,19 +1,21 @@
 ﻿module Logger
 open System.IO
 
+let combine = Path.Combine >> FilePath
 let now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
-let root'dir dir = FilePath (Path.Combine(Path.GetFullPath dir, now))
-let err'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "err.log"))
-let winsrv'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "winsrv.log"))
-let edge'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "edge.log"))
-let edge'installer'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "msedge_installer.log"))
-let edge'update'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "MicrosoftEdgeUpdate.log"))
-let ie'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "ie.log"))
-let dsregcmd'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "os", "dsregcmd.log"))
-let whoami'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "os", "whoami.log"))
-let cmdkey'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "os", "cmdkey.log"))
-let hotfix'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "os", "hotfix.log"))
-let schtasks'filepath dir = FilePath (Path.Combine(Path.GetFullPath dir, now, "schtasks.log"))
+let root'dir'path dir = Path.Combine(Path.GetFullPath dir, now)
+let root'dir dir = FilePath (root'dir'path dir)
+let err'filepath dir = [| root'dir'path dir; "err.log" |] |> combine
+let winsrv'filepath dir = [| root'dir'path dir; "winsrv.log" |] |> combine
+let edge'filepath dir = [| root'dir'path dir; "edge.log" |] |> combine
+let edge'installer'filepath dir = [| root'dir'path dir; "msedge_installer.log" |] |> combine
+let edge'update'filepath dir = [| root'dir'path dir; "MicrosoftEdgeUpdate.log" |] |> combine
+let ie'filepath dir = [| root'dir'path dir; "ie.log" |] |> combine
+let dsregcmd'filepath dir = [| root'dir'path dir; "os"; "dsregcmd.log" |] |> combine
+let whoami'filepath dir = [| root'dir'path dir; "os"; "whoami.log" |] |> combine
+let cmdkey'filepath dir = [| root'dir'path dir; "os"; "cmdkey.log" |] |> combine
+let hotfix'filepath dir = [| root'dir'path dir; "os"; "hotfix.log" |] |> combine
+let schtasks'filepath dir = [| root'dir'path dir; "schtasks.log" |] |> combine
 
 let inline exists (FilePath path) = path |> (Path.GetFullPath >> File.Exists)
 let inline exists' (path: string) = path |> (Path.GetFullPath >> File.Exists)

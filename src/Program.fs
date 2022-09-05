@@ -12,7 +12,6 @@ open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
-let current'dir = Path.GetFullPath "./"
 let inline exists process'name = 0 < Process.GetProcessesByName(process'name).Length
 let inline readkey() = System.Console.ReadKey()
 let rec wait'for'input () =
@@ -67,7 +66,11 @@ type Command () =
         task {
           try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message |> wait
           // TODO: Add IEDigest
-          IEDigest.downloads'if'it'doesnt'exist current'dir |> ignore
+          try
+            IEDigest.downloads'if'it'doesnt'exist () |> ignore
+            IEDigest.output dir
+            IEDigest.clean ()
+          with e -> log e.Message |> wait            
         }
       else empty'task
 
@@ -201,7 +204,9 @@ let main args =
   //|> Array.map (fun p -> p.ProcessName)
   //|> Array.iter (printfn "%s")
 
-
+  //IEDigest.downloads'if'it'doesnt'exist () |> ignore
+  //IEDigest.output dir
+  //IEDigest.clean ()
   0
 
 #else
