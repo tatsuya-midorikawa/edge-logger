@@ -11,11 +11,11 @@
     <AssemblyName>edge-logger</AssemblyName>
     <BaseOutputPath>..\bin</BaseOutputPath>
 
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishReadyToRun>true</PublishReadyToRun>-->
 
 		<!--<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
 		<!--<PublishTrimmed>true</PublishTrimmed>-->
@@ -28,6 +28,7 @@
     <Compile Include="Pwsh.fs" />
     <Compile Include="IEDigest.fs" />
     <Compile Include="Env.fs" />
+    <Compile Include="Edge.fs" />
     <Compile Include="Reg.fs" />
     <Compile Include="EdgePolicy.fs" />
     <Compile Include="InternetOption.fs" />

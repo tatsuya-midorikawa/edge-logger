@@ -39,10 +39,10 @@ type Command () =
       then 
         task {
           // Windows Service information
-          try do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir) with e -> log e.Message |> wait
+          try do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir) with e -> log $"<winsrv>: {e.Message}" |> wait
           // Task scheduler information
           // schtasks /query /V /FO CSV
-          try do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir) with e -> log e.Message |> wait
+          try do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir) with e -> log $"<schtasks>: {e.Message}" |> wait
          }
       else empty'task
 
@@ -51,11 +51,11 @@ type Command () =
       then
         task {
           // edge policy registry
-          try do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir) with e -> log e.Message |> wait
+          try do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir) with e -> log $"<edge policy>: {e.Message}" |> wait
           // msedge_installer.log
-          try EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir) with e -> log e.Message |> wait
+          try Edge.output'installer dir |> ignore with e -> log $"<msedge installer>: {e.Message}" |> wait
           // MicrosoftEdgeUpdate.log
-          try EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir) with e -> log e.Message |> wait
+          try Edge.output'updatelog dir |> ignore with e -> log $"<MicrosoftEdgeUpdate.log>: {e.Message}" |> wait
         }
       else empty'task
 
@@ -65,13 +65,13 @@ type Command () =
       then
         task {
           // Internet Option registries
-          try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message |> wait
+          try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log $"<ie registry>: {e.Message}" |> wait
           // IEDigest
           try
             IEDigest.downloads'if'it'doesnt'exist () |> ignore
             IEDigest.output dir
             IEDigest.clean ()
-          with e -> log e.Message |> wait            
+          with e -> log $"<IEDigest>: {e.Message}" |> wait      
         }
       else empty'task
 
@@ -80,27 +80,27 @@ type Command () =
       then
         task {
           // dsregcmd /status
-          try do! Env.output'dsregcmd dir  with e -> log e.Message |> wait
+          try do! Env.output'dsregcmd dir  with e -> log $"<dsregcmd>: {e.Message}" |> wait
           // whoami
-          try do! Env.output'whoami dir  with e -> log e.Message |> wait
+          try do! Env.output'whoami dir  with e -> log $"<whoami>: {e.Message}" |> wait
           // cmdkey /list
-          try do! Env.output'cmdkey dir  with e -> log e.Message |> wait
+          try do! Env.output'cmdkey dir  with e -> log $"<cmdkey>: {e.Message}" |> wait
           // get-hotfix
-          try do! Env.output'hotfix dir  with e -> log e.Message |> wait
+          try do! Env.output'hotfix dir  with e -> log $"<hotfix>: {e.Message}" |> wait
           // systeminfo
-          try do! Env.output'systeminfo dir  with e -> log e.Message |> wait
+          try do! Env.output'systeminfo dir  with e -> log $"<systeminfo>: {e.Message}" |> wait
           // qfe list
-          try do! Env.output'qfe dir  with e -> log e.Message |> wait
+          try do! Env.output'qfe dir  with e -> log $"<qfe>: {e.Message}" |> wait
         }
       else
         empty'task
 
     // Collection of various configuration information.
     task {
-      try do! winsrv'task with e -> log e.Message |> wait
-      try do! edge'task with e -> log e.Message |> wait
-      try do! ie'task with e -> log e.Message |> wait
-      try do! usr'task with e -> log e.Message |> wait
+      try do! winsrv'task with e -> log $"<winsrv'task>: {e.Message}" |> wait
+      try do! edge'task with e -> log $"<edge'task>: {e.Message}" |> wait
+      try do! ie'task with e -> log $"<ie'task>: {e.Message}" |> wait
+      try do! usr'task with e -> log $"<usr'task>: {e.Message}" |> wait
     }
     |> wait
     
@@ -119,7 +119,7 @@ type Command () =
           Cmd.netexport root |> Cmd.exec |> ignore
           wait'for'input ()
         with
-          e -> log e.Message |> wait
+          e -> log $"<net-export>: {e.Message}" |> wait
        
       // stop PSR
       if netexport || psr then 
@@ -209,10 +209,12 @@ let main args =
   //|> Array.map (fun p -> p.ProcessName)
   //|> Array.iter (printfn "%s")
 
-  IEDigest.downloads'if'it'doesnt'exist () |> ignore
-  IEDigest.output dir
-  IEDigest.clean ()
+  //IEDigest.downloads'if'it'doesnt'exist () |> ignore
+  //IEDigest.output dir
+  //IEDigest.clean ()
 
+  Edge.output'installer dir |> ignore
+  Edge.output'updatelog dir |> ignore
   
   0
 
