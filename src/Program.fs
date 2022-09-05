@@ -12,7 +12,7 @@ open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
-let inline exists process'name = 0 < Process.GetProcessesByName(process'name).Length
+let inline exists'proc process'name = 0 < Process.GetProcessesByName(process'name).Length
 let inline readkey() = System.Console.ReadKey()
 let rec wait'for'input () =
   printfn "Entry (y) to exit."
@@ -64,8 +64,9 @@ type Command () =
       // internet option registry
       then
         task {
+          // Internet Option registries
           try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log e.Message |> wait
-          // TODO: Add IEDigest
+          // IEDigest
           try
             IEDigest.downloads'if'it'doesnt'exist () |> ignore
             IEDigest.output dir
@@ -100,7 +101,7 @@ type Command () =
     |> wait
     
     // Determine if logging is possible
-    if netexport && not (exists "msedge") then ()
+    if netexport && exists'proc "msedge" then msgbox'show "To log net-export, exit all msedge.exe and run this app again."
     else
       Console.CancelKeyPress.Add(fun _ -> if psr || netexport then Cmd.psr'stop |> Cmd.exec |> ignore)
 
@@ -204,19 +205,18 @@ let main args =
   //|> Array.map (fun p -> p.ProcessName)
   //|> Array.iter (printfn "%s")
 
-  //IEDigest.downloads'if'it'doesnt'exist () |> ignore
-  //IEDigest.output dir
-  //IEDigest.clean ()
+  IEDigest.downloads'if'it'doesnt'exist () |> ignore
+  IEDigest.output dir
+  IEDigest.clean ()
+
+  
   0
 
 #else
 [<EntryPoint>]
 let main args =
-
-  current'dir |> (IEDigest.download >> ignore)
-
-  //ConsoleApp.Run<Command>(args)
-  //clear()
+  ConsoleApp.Run<Command>(args)
+  clear()
   printfn "This process has been completed."
   0
 #endif

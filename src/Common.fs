@@ -7,6 +7,7 @@ type root = HKLM = 0 | HKCU = 1
 type dict<'T, 'U> = System.Collections.Generic.Dictionary<'T, 'U>
 type pair = System.Collections.Generic.KeyValuePair<string, obj> 
 type regs = seq<root * string>
+let inline msgbox'show (msg: string) = System.Windows.Forms.MessageBox.Show (msg, "edge-logger.exe") |> ignore
 
 // Common values
 let defaultof<'T> = Unchecked.defaultof<'T>

@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+		<!--<OutputType>WinExe</OutputType>-->
+		<UseWindowsForms>true</UseWindowsForms>
+		<OutputType>Exe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>jp.dsi.logger</RootNamespace>
 		<Version>0.0.2</Version>
