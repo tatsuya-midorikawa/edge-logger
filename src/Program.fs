@@ -33,6 +33,7 @@ type Command () =
     
     let log = Logger.log dir
     let root = Logger.root'dir dir
+    root |> function FilePath fp -> create'dir fp
 
     let winsrv'task =
       if full || winsrv
@@ -117,12 +118,12 @@ type Command () =
       if netexport then
         try
           Cmd.netexport root |> Cmd.exec |> ignore
-          wait'for'input ()
         with
           e -> log $"<net-export>: {e.Message}" |> wait
        
       // stop PSR
       if netexport || psr then 
+        wait'for'input ()
         Cmd.psr'stop |> Cmd.exec |> ignore
 
       Cmd.exec [$"explorer %s{dir}"] |> ignore

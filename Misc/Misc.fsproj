@@ -17,6 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
+    <Compile Include="Pwsh.fs" />
     <Compile Include="Pipes.fs" />
   </ItemGroup>
 
