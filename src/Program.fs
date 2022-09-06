@@ -33,7 +33,7 @@ type Command () =
     
     let log = Logger.log dir
     let root = Logger.root'dir dir
-
+    match root with FilePath root -> root |> create'dir
     let winsrv'task =
       if full || winsrv
       then 
@@ -117,12 +117,12 @@ type Command () =
       if netexport then
         try
           Cmd.netexport root |> Cmd.exec |> ignore
-          wait'for'input ()
         with
           e -> log $"<net-export>: {e.Message}" |> wait
        
       // stop PSR
       if netexport || psr then 
+        wait'for'input ()
         Cmd.psr'stop |> Cmd.exec |> ignore
 
       Cmd.exec [$"explorer %s{dir}"] |> ignore
@@ -131,6 +131,7 @@ type Command () =
 [<EntryPoint>]
 let main args =
   let dir = "C:\\logs" |> Path.GetFullPath
+  let root = Logger.root'dir dir
   //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
   //clear()
   //Cmd.exec [$"explorer %s{dir}"] |> ignore
@@ -213,8 +214,11 @@ let main args =
   //IEDigest.output dir
   //IEDigest.clean ()
 
-  Edge.output'installer dir |> ignore
-  Edge.output'updatelog dir |> ignore
+  //dir |> (FilePath >> Cmd.psr'start >> Cmd.exec >> ignore)
+  root |> (Cmd.psr'start >> Cmd.exec >> ignore)
+
+  //Edge.output'installer dir |> ignore
+  //Edge.output'updatelog dir |> ignore
   
   0
 

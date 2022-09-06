@@ -6,18 +6,19 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <BaseOutputPath>..\bin</BaseOutputPath>
 
-		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<!--<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<PublishSingleFile>true</PublishSingleFile>
 		<SelfContained>true</SelfContained>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishReadyToRun>true</PublishReadyToRun>-->
 
 		<!--<PublishTrimmed>true</PublishTrimmed>
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>-->
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Pipes.fs" />
+    <Compile Include="Common.fs" />
+    <Compile Include="Pwsh.fs" />
   </ItemGroup>
 
 </Project>
