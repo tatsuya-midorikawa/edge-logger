@@ -214,9 +214,19 @@ let main args =
   //IEDigest.output dir
   //IEDigest.clean ()
 
-  Edge.output'installer dir |> ignore
-  Edge.output'updatelog dir |> ignore
-  
+  //Edge.output'installer dir |> ignore
+  //Edge.output'updatelog dir |> ignore
+
+  //let asm = System.Reflection.Assembly.GetEntryAssembly()
+  //(asm.Location, ".exe")
+  //|> System.IO.Path.ChangeExtension 
+  //|> printfn "%s"
+
+  args |> String.concat ", " |> printfn "%s"
+  if not is'admin then
+    run'as args
+  System.Console.ReadKey() |> ignore
+
   0
 
 #else

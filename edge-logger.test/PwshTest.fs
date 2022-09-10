@@ -3,12 +3,22 @@ module Tests
 open System
 open Xunit
 open Xunit.Abstractions
-
-let pwsh = System.IO.Path.GetFullPath "./pwsh.exe"
-let debug'log = System.Diagnostics.Debug.WriteLine
+open jp.dsi.logger.misc
 
 type PwshTest (output: ITestOutputHelper) =
+  let log msg = output.WriteLine msg
+
   [<Fact>]
-  member __.``My test`` () =
-    output.WriteLine pwsh
+  member __.``get-hotfix test`` () =
+    [| Pwsh.chain [| Pwsh.hotfix; Pwsh.output'file "./foo.log" |] |]
+    |> Pwsh.exec
+    |> log
+    //|> Pwsh.chain
+    //|> log
+
     Assert.True(true)
+  
+  [<Fact>]
+  member __.``sandbox test`` () =
+    System.Reflection.Assembly.GetExecutingAssembly().Location
+    |> log

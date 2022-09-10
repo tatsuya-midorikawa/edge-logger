@@ -26,4 +26,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Misc\Misc.fsproj" />
+  </ItemGroup>
+
 </Project>
