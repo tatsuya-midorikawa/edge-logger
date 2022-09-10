@@ -223,8 +223,7 @@ let main args =
   //|> printfn "%s"
 
   args |> String.concat ", " |> printfn "%s"
-  if not is'admin then
-    run'as args
+  relaunch'as'admin'if'user args
   System.Console.ReadKey() |> ignore
 
   0

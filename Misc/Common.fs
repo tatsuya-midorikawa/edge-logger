@@ -36,12 +36,9 @@ let inline create'dir dir = if not (System.IO.Directory.Exists dir) then System.
 let combine = System.IO.Path.Combine >> FilePath
 
 // System.Diagnostics
-let inline run'as (cmds: string[]) =
-  let asm = System.Reflection.Assembly.GetEntryAssembly()
-  let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
+let inline run'as (app: string) (cmds: string[]) =
   let cmds = cmds |> String.concat " "
 
-  // TODO:
   let pi = System.Diagnostics.ProcessStartInfo (app,
     Arguments = cmds,
     UseShellExecute = true,
@@ -53,3 +50,11 @@ let inline run'as (cmds: string[]) =
   use p = System.Diagnostics.Process.Start pi
   p.WaitForExit()
   p.Close()
+
+let inline relaunch'as'admin'if'user (cmds: string[]) =
+  if not is'admin then
+    let asm = System.Reflection.Assembly.GetEntryAssembly()
+    let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
+    run'as app cmds
+  else
+    ()
