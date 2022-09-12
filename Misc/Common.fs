@@ -52,9 +52,12 @@ let inline run'as (app: string) (cmds: string[]) =
   p.Close()
 
 let inline relaunch'as'admin'if'user (cmds: string[]) =
-  if not is'admin then
-    let asm = System.Reflection.Assembly.GetEntryAssembly()
-    let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
-    run'as app cmds
-  else
-    ()
+  try
+    if not is'admin then
+      let asm = System.Reflection.Assembly.GetEntryAssembly()
+      let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
+      Ok (run'as app cmds)
+    else
+      Ok ()
+  with
+  | e -> Error e.Message
