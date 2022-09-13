@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Misc\Misc.fsproj" />
+    <ProjectReference Include="..\edge-logger.tools\edge-logger.tools.fsproj" />
   </ItemGroup>
 
 </Project>

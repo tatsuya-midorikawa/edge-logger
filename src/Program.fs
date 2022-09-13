@@ -1,4 +1,4 @@
-﻿open jp.dsi.logger.misc
+﻿open jp.dsi.logger.tools
 
 open Microsoft.Win32
 open System.IO

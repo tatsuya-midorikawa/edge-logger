@@ -3,7 +3,7 @@ module Tests
 open System
 open Xunit
 open Xunit.Abstractions
-open jp.dsi.logger.misc
+open jp.dsi.logger.tools
 
 type PwshTest (output: ITestOutputHelper) =
   let log msg = output.WriteLine msg

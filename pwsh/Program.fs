@@ -1,4 +1,4 @@
-﻿open jp.dsi.logger.misc
+﻿open jp.dsi.logger.tools
 open System.IO.Pipes
 open System.Diagnostics
 open System.Threading.Tasks

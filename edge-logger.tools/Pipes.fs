@@ -1,4 +1,4 @@
-﻿namespace jp.dsi.logger.misc
+﻿namespace jp.dsi.logger.tools
 
 open System.IO.Pipes
 open System.Text

@@ -29,10 +29,16 @@ let inline wait<'T> (task: System.Threading.Tasks.Task<'T>) = System.Threading.T
 let inline toJson<'T> (object: 'T) = System.Text.Json.JsonSerializer.Serialize(object, System.Text.Json.JsonSerializerOptions(WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, IgnoreNullValues = true))
 
 // System.IO
-let inline exists path = System.IO.File.Exists path
-let inline get'fpath path = System.IO.Path.GetFullPath path
+let get'fullpath = System.IO.Path.GetFullPath
+let inline get'parentdir (path: string) = System.IO.Path.GetDirectoryName path
+let file'exists = get'fullpath >> System.IO.File.Exists
+let not'file'exists = file'exists >> not
+let dir'exists = get'fullpath >> System.IO.Directory.Exists
+let not'dir'exists = dir'exists >> not
+let inline create'file path = System.IO.File.Create(get'fullpath path).Dispose()
+let inline create'dir path = if not'dir'exists path then System.IO.Directory.CreateDirectory(get'fullpath path) |> ignore
+
 let inline get'dir (FilePath file) = System.IO.Path.GetDirectoryName file
-let inline create'dir dir = if not (System.IO.Directory.Exists dir) then System.IO.Directory.CreateDirectory(dir) |> ignore
 let combine = System.IO.Path.Combine >> FilePath
 
 // System.Diagnostics

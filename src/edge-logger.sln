@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "edge-logger", "edge-logger.fsproj", "{C8415A8B-C88D-4157-B80C-18A0F9D25E28}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Misc", "..\Misc\Misc.fsproj", "{5FBEC615-8A8B-425C-BB45-1D32F5D7CE4C}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "edge-logger.tools", "..\edge-logger.tools\edge-logger.tools.fsproj", "{5FBEC615-8A8B-425C-BB45-1D32F5D7CE4C}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "edge-logger.test", "..\edge-logger.test\edge-logger.test.fsproj", "{9C3EF959-ACC1-4C75-B08F-5BEF9B2E590D}"
 EndProject

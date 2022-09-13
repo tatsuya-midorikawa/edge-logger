@@ -11,7 +11,7 @@ let downloads'if'it'doesnt'exist () =
   let ep = "https://aka.ms/iedigest"
   let dst = iedigest'zip
   let file = iedigest'exe
-  if exists file 
+  if file'exists file 
   then
     file
   else
@@ -31,7 +31,7 @@ let downloads'if'it'doesnt'exist () =
     file
 
 let output dir =
-  if exists iedigest'exe
+  if file'exists iedigest'exe
   then
     let dst = [| Logger.root'dir'path dir; "ie" |] |> combine
     dst |> create'dir
@@ -40,5 +40,5 @@ let output dir =
   else
     raise (exn "iedigest.exe does not exist.")
 
-let clean () = if exists iedigest'exe then iedigest'exe |> (Pwsh.remove >> Pwsh.exec >> ignore) else ()
+let clean () = if file'exists iedigest'exe then iedigest'exe |> (Pwsh.remove >> Pwsh.exec >> ignore) else ()
     
