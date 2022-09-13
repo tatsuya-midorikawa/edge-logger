@@ -39,7 +39,9 @@ let inline create'file path = System.IO.File.Create(get'fullpath path).Dispose()
 let inline create'dir path = if not'dir'exists path then System.IO.Directory.CreateDirectory(get'fullpath path) |> ignore
 
 let inline get'dir (FilePath file) = System.IO.Path.GetDirectoryName file
+[<System.Obsolete("Should use combine' function. This function will be replaced by combine' function in the future.")>]
 let combine = System.IO.Path.Combine >> FilePath
+let combine' = System.IO.Path.Combine
 
 // System.Diagnostics
 let inline run'as (app: string) (cmds: string[]) =

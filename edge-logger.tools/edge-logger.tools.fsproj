@@ -20,7 +20,6 @@
     <Compile Include="Common.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Pwsh.fs" />
-    <Compile Include="Pipes.fs" />
   </ItemGroup>
 
 </Project>

@@ -8,12 +8,10 @@ open System.IO
 // TODO:
 module Pwsh =
   [<Literal>]
-  let pwsh = "powershell"
-  [<Literal>]
-  let hotfix = "get-hotfix"
+  let private pwsh = "powershell"
 
-  let output'file filepath = $"out-file %s{get'fullpath filepath}"
-  let chain (cmds: seq<string>) = cmds |> String.concat " | "
+  let private create'output'file'cmd filepath = $"out-file %s{get'fullpath filepath}"
+  let private chain (cmds: seq<string>) = [| cmds |> String.concat " | " |]
 
   let exec (cmds: seq<string>) =
     let pi = ProcessStartInfo (pwsh, 
@@ -54,10 +52,19 @@ module Pwsh =
     p.StandardInput.WriteLine "exit"
     p.WaitForExit()
     stdout.ToString()
-
-
-
-
+  
+  // get-hotofix
+  [<Literal>]
+  let private hotfix'cmd = "get-hotfix"
+  let get'hotfix output'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir output'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\env
+    let output'dir = combine' [| root'dir; "env"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\env\hotfix.log
+    let output'file'cmd = [| output'dir; "hotfix.log" |] |> (combine' >> create'output'file'cmd)
+    [| hotfix'cmd; output'file'cmd |] |> (chain >> exec)
 
 
 

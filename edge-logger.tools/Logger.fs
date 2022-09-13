@@ -9,12 +9,12 @@ module Logger =
 
   // Common values
   let private now = System.DateTime.Now.ToString("yyyyMMdd_HHmmss")
-  let private get'root'dir dir = [| get'fullpath dir; now; |] |> combine
+  let get'root'dir dir = [| get'fullpath dir; now; |] |> combine
 
   // Common functions
-  let private create'output'dir output'path =
+  let create'output'dir output'path =
     if not'dir'exists output'path then create'dir output'path else ()
-  let private create'output'file filepath =
+  let create'output'file filepath =
     if not'file'exists filepath then create'file filepath else ()
 
   // Output log file
