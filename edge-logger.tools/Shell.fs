@@ -223,6 +223,12 @@ module Env =
     | AuditUserShadowStack of bool
     
   // TODO:
+  // そもそも、msedge.exe が Exploit protection に登録されていない場合、
+  // 設定値を取得する、以下のコマンドが null を返すため、そこの処理も必要。
+  // > get-processMitigation -name msedge.exe | select-object "UserShadowStack"
+  //
+  // ただ、PowerShell 単体で考える場合においては、null でメソッド チェーンを繋いでも、
+  // 例外にはならず、null が返ってくるので、それで判断してもよいやもしれない。
   let get'hesp () =
     // TODO
     // return ON or OFF or NOTSET: 以下の 3 つ状態を取得し、処理終了後に戻す処理が必要
