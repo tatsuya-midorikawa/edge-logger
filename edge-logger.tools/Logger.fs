@@ -18,7 +18,7 @@ module Logger =
     if not'file'exists filepath then create'file filepath else ()
 
   // Output log file
-  let inline output (output'dir: string) (filename: string) (content: string) =
+  let output (output'dir: string) (filename: string) (content: string) =
     let root'dir = get'root'dir output'dir
     let filepath = [| root'dir; filename; |] |> (combine >> get'fullpath)
     let dirpath = get'parentdir filepath

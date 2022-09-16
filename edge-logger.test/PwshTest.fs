@@ -8,13 +8,22 @@ open jp.dsi.logger.tools
 type PwshTest (output: ITestOutputHelper) =
   let log msg = output.WriteLine msg
 
+  //[<Fact>]
+  //member __.``get-hotfix test`` () =
+  //  [| Pwsh.chain [| Pwsh.hotfix; Pwsh.output'file "./foo.log" |] |]
+  //  |> Pwsh.exec
+  //  |> log
+  //  //|> Pwsh.chain
+  //  //|> log
+
+  //  Assert.True(true)
+
   [<Fact>]
-  member __.``get-hotfix test`` () =
-    [| Pwsh.chain [| Pwsh.hotfix; Pwsh.output'file "./foo.log" |] |]
-    |> Pwsh.exec
-    |> log
-    //|> Pwsh.chain
+  member __.``get'hesp test`` () =
+    //"abc> def".Substring("abc> def".IndexOf(">"))
     //|> log
+    Env.get'hesp()
+    |> log
 
     Assert.True(true)
   

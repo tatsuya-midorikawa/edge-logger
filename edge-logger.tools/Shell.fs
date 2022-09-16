@@ -31,6 +31,30 @@ module Pwsh =
     p.WaitForExit()
     stdout.ToString()
 
+  // TEST
+  let exec'' (cmds: seq<string>) =
+    let pi = ProcessStartInfo (pwsh, 
+      // enable commnads input and reading of output
+      UseShellExecute = false,
+      RedirectStandardInput = true,
+      RedirectStandardOutput = true,
+      // hide console window
+      CreateNoWindow = true)
+
+    use p = Process.Start pi
+    let stdout = StringBuilder()
+    // wip
+    p.OutputDataReceived.Add (fun e ->
+      if e.Data <> null then
+        let index = e.Data.IndexOf("> ")
+        if 0 <= index then stdout.AppendLine(e.Data.Substring(index)) |> ignore)
+    p.BeginOutputReadLine()
+    for cmd in cmds do 
+      p.StandardInput.WriteLine cmd
+    p.StandardInput.WriteLine "exit"
+    p.WaitForExit()
+    stdout.ToString()
+
   let exec' (callback: string -> unit) (cmds: seq<string>) =
     let pi = ProcessStartInfo (pwsh, 
       // enable commnads input and reading of output
@@ -50,7 +74,6 @@ module Pwsh =
     p.StandardInput.WriteLine "exit"
     p.WaitForExit()
     stdout.ToString()
-
 
 module Cmd =
   let private cmd = Environment.GetEnvironmentVariable "ComSpec"
@@ -232,9 +255,14 @@ module Env =
   let get'hesp () =
     // TODO
     // return ON or OFF or NOTSET: 以下の 3 つ状態を取得し、処理終了後に戻す処理が必要
-    "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack"
-    "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStackStrictMode"
-    "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.AuditUserShadowStack"
+    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack"
+    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStackStrictMode"
+    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.AuditUserShadowStack"
+
+    // TODO
+    [| "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack" |]
+    |> Pwsh.exec''
+    
 
   let set'hesp enabled = 
     if is'admin
