@@ -19,7 +19,7 @@
   <ItemGroup>
     <Compile Include="Common.fs" />
     <Compile Include="Logger.fs" />
-    <Compile Include="Pwsh.fs" />
+    <Compile Include="Shell.fs" />
   </ItemGroup>
 
 </Project>
