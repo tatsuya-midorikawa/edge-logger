@@ -22,4 +22,8 @@
     <Compile Include="Shell.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+  </ItemGroup>
+
 </Project>

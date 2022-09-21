@@ -9,7 +9,7 @@ module Pwsh =
   [<Literal>]
   let private pwsh = "powershell"
 
-  let internal create'output'file'cmd filepath = $"out-file %s{get'fullpath filepath}"
+  let internal create'output'file'cmd filepath = $"out-file \"%s{get'fullpath filepath}\""
   let internal chain (cmds: seq<string>) = [| cmds |> String.concat " | " |]
 
   let exec (cmds: seq<string>) =
@@ -80,6 +80,7 @@ module Cmd =
 
   let internal create'output'file'cmd filepath = $"%s{get'fullpath filepath}"
   let internal chain (cmds: seq<string>) = [| cmds |> String.concat " >> " |]
+  let internal chains (cmds: seq<string[]>) = cmds |> Seq.map (String.concat " >> ")
 
   let run'as (wait'for'exit: bool) (cmd: string)  =
     let pi = ProcessStartInfo (cmd, 
@@ -239,33 +240,121 @@ module Env =
     let output'file'cmd = [| output'dir; $"appxpackage list.log" |] |> (combine' >> Pwsh.create'output'file'cmd)
     [| appxpackage'list'cmd; output'file'cmd |] |> (Pwsh.chain >> Pwsh.exec)
 
-  // Disable Hardware-enforced Stack Protection
+module Winsrv =
+  // Get-WmiObject win32_service
+  [<Literal>]
+  let private win32service'cmd = $"Get-WmiObject win32_service"
+  let output'win32service'list root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    let output'dir = combine' [| root'dir; "winsrv"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\winsrv\win32service list.log
+    let output'file'cmd = [| output'dir; $"win32service list.log" |] |> (combine' >> Pwsh.create'output'file'cmd)
+    [| win32service'cmd; output'file'cmd |] |> (Pwsh.chain >> Pwsh.exec)
+
+   // schtasks /query /V /FO LIST
+  [<Literal>]
+  let private schtasks'cmd = "schtasks /query /V /FO LIST"
+  let output'schtasks root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    let output'dir = combine' [| root'dir; "winsrv"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\winsrv\schtasks.log
+    let output'file'cmd = [| output'dir; "schtasks.log" |] |> (combine' >> Cmd.create'output'file'cmd)
+    [| schtasks'cmd; output'file'cmd |] |> (Cmd.chain >> Cmd.exec)
+
+module Edge =
+  // REG QUERY "{HKLM|HKCU}\SOFTWARE\Policies\Microsoft\Edge"
+  [<Literal>]
+  let private policy'hklm'cmd = $"REG QUERY \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge\""
+  [<Literal>]
+  let private policy'hkcu'cmd = $"REG QUERY \"HKCU\\SOFTWARE\\Policies\\Microsoft\\Edge\""
+  let output'policy root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge
+    let output'dir = combine' [| root'dir; "edge"; "policy"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\policy\edge.log
+    let output'path = combine' [| output'dir; "edge.log"; |]
+    [| [| policy'hklm'cmd; $"\"{output'path}\""; |]; [| policy'hkcu'cmd; $"\"{output'path}\""; |]; |]
+    |> (Cmd.chains >> Cmd.exec)
+
+  // REG QUERY "{HKLM|HKCU}\SOFTWARE\Policies\Microsoft\EdgeUpdate"
+  [<Literal>]
+  let private update'hklm'cmd = $"REG QUERY \"HKLM\\SOFTWARE\\Policies\\Microsoft\\EdgeUpdate\""
+  [<Literal>]
+  let private update'hkcu'cmd = $"REG QUERY \"HKCU\\SOFTWARE\\Policies\\Microsoft\\EdgeUpdate\""
+  let output'update'policy root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge
+    let output'dir = combine' [| root'dir; "edge"; "policy"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\policy\update.log
+    let output'path = combine' [| output'dir; "update.log"; |]
+    [| [| update'hklm'cmd; $"\"{output'path}\""; |]; [| update'hkcu'cmd; $"\"{output'path}\"";|] |] |> (Cmd.chains >> Cmd.exec)
+
+  // REG QUERY "{HKLM|HKCU}\SOFTWARE\Microsoft\Edge"
+  [<Literal>]
+  let private edge'hklm'cmd = $"REG QUERY \"HKLM\\SOFTWARE\\Microsoft\\Edge\""
+  [<Literal>]
+  let private edge'hkcu'cmd = $"REG QUERY \"HKCU\\SOFTWARE\\Microsoft\\Edge\""
+  [<Literal>]
+  let private wow6432'hklm'cmd = $"REG QUERY \"HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\Edge\""
+  [<Literal>]
+  let private wow6432'hkcu'cmd = $"REG QUERY \"HKCU\\SOFTWARE\\WOW6432Node\\Microsoft\\Edge\""
+  let output'ext'policy root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge
+    let output'dir = combine' [| root'dir; "edge"; "policy"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\policy\ext.log
+    let output'path = combine' [| output'dir; "ext.log"; |]
+    [| [| edge'hklm'cmd; $"\"{output'path}\""; |]; [| edge'hkcu'cmd; $"\"{output'path}\""; |];
+       [| wow6432'hklm'cmd; $"\"{output'path}\""; |]; [| wow6432'hkcu'cmd; $"\"{output'path}\""; |]; |]
+    |> (Cmd.chains >> Cmd.exec)
+
+  // (Get-Command "C:\Program Files (x86)\Microsoft\edge\Application\msedge.exe").Version
+  let private version'cmd = 
+    let path = 
+      [| 
+        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86)
+        @"Microsoft\Edge\Application\msedge.exe" 
+      |] |> System.IO.Path.Combine
+    $"(Get-Command \"{path}\").Version"
+  let output'version root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge
+    let output'dir = combine' [| root'dir; "edge"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\version.log
+    let output'file'cmd = [| output'dir; $"version.log" |] |> (combine' >> Pwsh.create'output'file'cmd)
+    [| version'cmd; output'file'cmd; |] |> (Pwsh.chain >> Pwsh.exec)
+    
+
+// WIP:
+module ProcessMitigation =
   type State = On | Off | Notset | True | False
   module private State =
     let parse (cmd: string) =  match cmd.ToLower() with "on" -> On | "off" -> Off | "true" -> True | "false" -> False | _ -> Notset
+
   type Hesp = {
     UserShadowStack : State
     UserShadowStackStrictMode : State
     AuditUserShadowStack : State
     Override : State
   }
+  with static member empty = { UserShadowStack = State.Notset;  UserShadowStackStrictMode = State.Off; AuditUserShadowStack = State.Notset; Override = State.False}
     
-  // TODO:
-  // そもそも、msedge.exe が Exploit protection に登録されていない場合、
-  // 設定値を取得する、以下のコマンドが null を返すため、そこの処理も必要。
-  // > get-processMitigation -name msedge.exe | select-object "UserShadowStack"
-  //
-  // ただ、PowerShell 単体で考える場合においては、null でメソッド チェーンを繋いでも、
-  // 例外にはならず、null が返ってくるので、それで判断してもよいやもしれない。
+  // Get Hardware-enforced Stack Protection
   let get'hesp () =
-    // TODO
-    // return ON or OFF or NOTSET: 以下の 3 つ状態を取得し、処理終了後に戻す処理が必要
-    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack"
-    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStackStrictMode"
-    //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.AuditUserShadowStack"
-
-    // TODO
-    //[| "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack" |]
     let cmd = "Get-ProcessMitigation -name msedge.exe"
     let lines = [| cmd |] |> Pwsh.exec'
     let cmd'idx = lines |> Array.findIndex ((=) cmd)
@@ -287,9 +376,26 @@ module Env =
           else if lines[i].StartsWith(" ") then f (i + 1) else i - 1
         f start'idx
 
-      Some (lines[start'idx..end'idx] |> Array.map (fun x -> x.Replace(" ", "")))
+      let xs = 
+        lines[start'idx..end'idx]
+        |> Array.filter (fun x -> x.Contains(":"))
+        |> Array.map (fun x -> 
+          let x' = x.Replace(" ", "").Split(':')
+          {| key = x'[0]; value = x'[1] |})
 
+      let mutable hesp = Hesp.empty
+      for x in xs do
+        match x.key with
+        | "UserShadowStack" -> hesp <- { hesp with UserShadowStack = State.parse x.value }
+        | "UserShadowStackStrictMode" -> hesp <- { hesp with UserShadowStackStrictMode = State.parse x.value }
+        | "AuditUserShadowStack" -> hesp <- { hesp with AuditUserShadowStack = State.parse x.value }
+        | "OverrideUserShadowStack" -> hesp <- { hesp with Override = State.parse x.value }
+        | _ -> ()
+          
+      //if hesp = Hesp.empty then None else Some hesp
+      Some hesp
 
+  // TODO:
   let set'hesp enabled = 
     if is'admin
     then
@@ -299,10 +405,10 @@ module Env =
     else
       raise (NotSupportedException "Supported only if you have administrative privileges.")
 
+  // TODO:
   let rem'hesp () =
     [| $"Set-ProcessMitigation -name msedge.exe -remove" |]
     |> Pwsh.exec
-
 
 module Tools =
   // TODO:

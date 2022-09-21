@@ -37,10 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConsoleAppFramework" Version="4.1.0" />
+    <PackageReference Include="ConsoleAppFramework" Version="4.2.2" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
-    <PackageReference Include="System.Text.Json" Version="6.0.4" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>
