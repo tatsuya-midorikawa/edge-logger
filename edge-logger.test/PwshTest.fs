@@ -1,4 +1,4 @@
-module Tests
+namespace jp.dsi.logger.tests
 
 open System
 open Xunit
@@ -55,6 +55,16 @@ type PwshTest (output: ITestOutputHelper) =
   [<Fact>]
   member __.``Edge.output'version test`` () =
     Edge.output'version @"C:\logs"
+    |> log
+
+  [<Fact>]
+  member __.``Edge.output'msedge'update test`` () =
+    Edge.output'msedge'update @"C:\logs"
+    |> log
+
+  [<Fact>]
+  member __.``IE.output'reg test`` () =
+    IE.output'reg @"C:\logs"
     |> log
 
   [<Fact>]

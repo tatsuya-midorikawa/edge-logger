@@ -25,9 +25,10 @@ module Logger =
     create'output'dir dirpath
     create'output'file filepath
     task { do! seq { content } |> append filepath }
-
-
-
+    
+  let inline log dir msg =
+    let path = get'root'dir dir
+    output path "err.log" msg
 
 
   //let combine = Path.Combine >> FilePath

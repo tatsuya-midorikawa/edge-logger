@@ -20,6 +20,7 @@
     <Compile Include="Common.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Shell.fs" />
+    <Compile Include="IEDigest.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -268,6 +268,11 @@ module Winsrv =
     [| schtasks'cmd; output'file'cmd |] |> (Cmd.chain >> Cmd.exec)
 
 module Edge =
+  let private sysroot'dir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Windows)
+  let private allusrprofile'dir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData)
+  let private programdata'dir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonApplicationData)
+  let private localapp'dir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData)
+
   // REG QUERY "{HKLM|HKCU}\SOFTWARE\Policies\Microsoft\Edge"
   [<Literal>]
   let private policy'hklm'cmd = $"REG QUERY \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge\""
@@ -343,6 +348,68 @@ module Edge =
     let r2 = [| winver'cmd; $"\"{output'path}\"" |] |> (Cmd.chain >> Cmd.exec)
     r1 + r2
 
+  // Microsoft Edge Update logs
+  let private installer'log = [| sysroot'dir; "TEMP"; "msedge_installer.log" |] |> combine'
+  let private installer'cmd dst = $"copy /y \"%s{installer'log}\" \"%s{dst}\""
+  let private update'log = [| allusrprofile'dir; "Microsoft"; "EdgeUpdate"; "Log"; |] |> combine'
+  let private update'cmd dst = $"copy /y \"%s{update'log}\" \"%s{dst}\"";
+  let private intune'log = [| programdata'dir; "Microsoft"; "IntuneManagementExtension"; "Logs"; "IntuneManagementExtension*.log"|] |> combine'
+  let private intune'cmd dst = $"copy /y \"%s{intune'log}\" \"%s{dst}\"";
+  let private webview2'update'log = [| localapp'dir; "Temp"; "MicrosoftEdgeUpdate.log" |] |> combine'
+  let private webview2'update'cmd dst =
+    let dst = combine' [| dst; "MicrosoftEdgeUpdate_wv2.log" |]
+    $"copy /y \"%s{webview2'update'log}\" \"%s{dst}\"";
+  let private webview2'inst'log = [| localapp'dir; "Temp"; "msedge_installer.log" |] |> combine'
+  let private webview2'inst'cmd dst =
+    let dst = combine' [| dst; "msedge_installer_wv2.log" |]
+    $"copy /y \"%s{webview2'inst'log}\" \"%s{dst}\"";
+  let output'msedge'update root'dir =
+    if not is'admin then raise (NotSupportedException "Supported only if you have administrative privileges.")
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    let output'dir = combine' [| root'dir; "edge"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer.log and C:\logs\yyyyMMdd_HHmmss\edge\MicrosoftEdgeUpdate.log
+    [| installer'cmd output'dir; update'cmd output'dir; intune'cmd output'dir; webview2'update'cmd output'dir; webview2'inst'cmd output'dir; |] |> Cmd.exec
+
+module IE =
+  let private regs = [|
+    @"SOFTWARE\Microsoft\Active Setup\Installed Components"
+    @"SOFTWARE\Microsoft\Internet Explorer"
+    @"SOFTWARE\Wow6432Node\Microsoft\Internet Explorer"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Ext"
+    @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Ext"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
+    @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Internet Settings"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Ext"
+    @"SOFTWARE\Policies\Microsoft\Internet Explorer"
+    @"SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings"
+    @"SOFTWARE\Microsoft\Windows\CurrentVersion\WinTrust\Trust Providers\Software Publishing"
+  |]
+  let output'reg root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\ie
+    let output'dir = combine' [| root'dir; "ie"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\ie\ie.log
+    let output'path = combine' [| output'dir; "ie.log"; |]
+
+    let hklm =
+      regs
+      |> Array.map (fun reg -> $"REG QUERY \"HKLM\\{reg}\" >> \"{output'path}\"")
+      |> Cmd.exec
+    let hkcu =
+      regs
+      |> Array.map (fun reg -> $"REG QUERY \"HKCU\\{reg}\" >> \"{output'path}\"")
+      |> Cmd.exec
+
+    hklm + hkcu
+
 // WIP:
 module ProcessMitigation =
   type State = On | Off | Notset | True | False
@@ -415,7 +482,6 @@ module ProcessMitigation =
     |> Pwsh.exec
 
 module Tools =
-  // TODO:
   let inline unzip (zip: string) =
     if Path.GetExtension zip = ".zip" 
     then
@@ -427,5 +493,4 @@ module Tools =
      else
       [||]
 
-  // TODO:
-  let remove target = [| $"Remove-Item -Path \"%s{target}\" -Force" |]
+  let remove target = [| $"Remove-Item -Path \"%s{target}\" -Recurse -Force" |] |> Pwsh.exec
