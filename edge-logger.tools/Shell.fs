@@ -321,13 +321,15 @@ module Edge =
     |> (Cmd.chains >> Cmd.exec)
 
   // (Get-Command "C:\Program Files (x86)\Microsoft\edge\Application\msedge.exe").Version
-  let private version'cmd = 
+  let private ver'cmd = 
     let path = 
       [| 
         System.Environment.GetFolderPath(System.Environment.SpecialFolder.ProgramFilesX86)
         @"Microsoft\Edge\Application\msedge.exe" 
       |] |> System.IO.Path.Combine
     $"(Get-Command \"{path}\").Version"
+  [<Literal>]
+  let private winver'cmd = "ver"
   let output'version root'dir =
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
@@ -335,9 +337,11 @@ module Edge =
     let output'dir = combine' [| root'dir; "edge"; |]
     Logger.create'output'dir output'dir
     // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\version.log
-    let output'file'cmd = [| output'dir; $"version.log" |] |> (combine' >> Pwsh.create'output'file'cmd)
-    [| version'cmd; output'file'cmd; |] |> (Pwsh.chain >> Pwsh.exec)
-    
+    let output'path = combine' [| output'dir; "winver.log"; |]
+    let output'file'cmd = [| output'dir; "version.log"; |] |> (combine' >> Pwsh.create'output'file'cmd)
+    let r1 = [| ver'cmd; output'file'cmd; |] |> (Pwsh.chain >> Pwsh.exec)
+    let r2 = [| winver'cmd; $"\"{output'path}\"" |] |> (Cmd.chain >> Cmd.exec)
+    r1 + r2
 
 // WIP:
 module ProcessMitigation =
