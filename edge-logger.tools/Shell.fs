@@ -31,8 +31,8 @@ module Pwsh =
     p.WaitForExit()
     stdout.ToString()
 
-  // TEST
-  let exec'' (cmds: seq<string>) =
+  // 
+  let exec' (cmds: seq<string>) =
     let pi = ProcessStartInfo (pwsh, 
       // enable commnads input and reading of output
       UseShellExecute = false,
@@ -42,38 +42,38 @@ module Pwsh =
       CreateNoWindow = true)
 
     use p = Process.Start pi
-    let stdout = StringBuilder()
-    // wip
+    let stdout = ResizeArray<string>()
     p.OutputDataReceived.Add (fun e ->
-      if e.Data <> null then
+      if not (String.IsNullOrWhiteSpace e.Data) then
         let index = e.Data.IndexOf("> ")
-        if 0 <= index then stdout.AppendLine(e.Data.Substring(index)) |> ignore)
+        if 0 <= index then
+          stdout.Add(e.Data.Substring (index + 2)) else stdout.Add(e.Data))
     p.BeginOutputReadLine()
     for cmd in cmds do 
       p.StandardInput.WriteLine cmd
     p.StandardInput.WriteLine "exit"
     p.WaitForExit()
-    stdout.ToString()
+    Array.ofSeq stdout
 
-  let exec' (callback: string -> unit) (cmds: seq<string>) =
-    let pi = ProcessStartInfo (pwsh, 
-      // enable commnads input and reading of output
-      UseShellExecute = false,
-      RedirectStandardInput = true,
-      RedirectStandardOutput = true,
-      // hide console window
-      CreateNoWindow = true)
+  //let exec'with (callback: string -> unit) (cmds: seq<string>) =
+  //  let pi = ProcessStartInfo (pwsh, 
+  //    // enable commnads input and reading of output
+  //    UseShellExecute = false,
+  //    RedirectStandardInput = true,
+  //    RedirectStandardOutput = true,
+  //    // hide console window
+  //    CreateNoWindow = true)
 
-    use p = Process.Start pi
-    let stdout = StringBuilder()
-    p.OutputDataReceived.Add (fun e -> if e.Data <> null then stdout.AppendLine(e.Data) |> ignore)
-    p.BeginOutputReadLine()
-    for cmd in cmds do 
-      p.StandardInput.WriteLine cmd
-      callback cmd
-    p.StandardInput.WriteLine "exit"
-    p.WaitForExit()
-    stdout.ToString()
+  //  use p = Process.Start pi
+  //  let stdout = StringBuilder()
+  //  p.OutputDataReceived.Add (fun e -> if e.Data <> null then stdout.AppendLine(e.Data) |> ignore)
+  //  p.BeginOutputReadLine()
+  //  for cmd in cmds do 
+  //    p.StandardInput.WriteLine cmd
+  //    callback cmd
+  //  p.StandardInput.WriteLine "exit"
+  //  p.WaitForExit()
+  //  stdout.ToString()
 
 module Cmd =
   let private cmd = Environment.GetEnvironmentVariable "ComSpec"
@@ -240,10 +240,15 @@ module Env =
     [| appxpackage'list'cmd; output'file'cmd |] |> (Pwsh.chain >> Pwsh.exec)
 
   // Disable Hardware-enforced Stack Protection
-  type Hesp =
-    | UserShadowStack of bool
-    | UserShadowStackStrictMode of bool
-    | AuditUserShadowStack of bool
+  type State = On | Off | Notset | True | False
+  module private State =
+    let parse (cmd: string) =  match cmd.ToLower() with "on" -> On | "off" -> Off | "true" -> True | "false" -> False | _ -> Notset
+  type Hesp = {
+    UserShadowStack : State
+    UserShadowStackStrictMode : State
+    AuditUserShadowStack : State
+    Override : State
+  }
     
   // TODO:
   // そもそも、msedge.exe が Exploit protection に登録されていない場合、
@@ -260,9 +265,30 @@ module Env =
     //"(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.AuditUserShadowStack"
 
     // TODO
-    [| "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack" |]
-    |> Pwsh.exec''
-    
+    //[| "(get-processMitigation -name msedge.exe | select-object \"UserShadowStack\").UserShadowStack.UserShadowStack" |]
+    let cmd = "Get-ProcessMitigation -name msedge.exe"
+    let lines = [| cmd |] |> Pwsh.exec'
+    let cmd'idx = lines |> Array.findIndex ((=) cmd)
+    let exit'idx = lines |> Array.findIndex ((=) "exit")
+    // If there is no cmd result, return None.
+    if exit'idx - cmd'idx = 1
+    then None
+    else 
+      let start'idx = 
+        lines 
+        |> Array.findIndex (fun line -> line = "User Shadow Stack:")
+        |> (+) 1
+
+      let end'idx =
+        let len = lines.Length
+        let rec f(i: int) =
+          if len < i
+          then raise (exn "Index out of range.")
+          else if lines[i].StartsWith(" ") then f (i + 1) else i - 1
+        f start'idx
+
+      Some (lines[start'idx..end'idx] |> Array.map (fun x -> x.Replace(" ", "")))
+
 
   let set'hesp enabled = 
     if is'admin

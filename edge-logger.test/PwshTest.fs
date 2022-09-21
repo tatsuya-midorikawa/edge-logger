@@ -22,8 +22,11 @@ type PwshTest (output: ITestOutputHelper) =
   member __.``get'hesp test`` () =
     //"abc> def".Substring("abc> def".IndexOf(">"))
     //|> log
+    //Env.get'hesp()
+    //|> log
     Env.get'hesp()
-    |> log
+    |> Option.iter (fun hesp ->
+      hesp |> Array.iteri (fun i s -> log $"{i}: {s}"))
 
     Assert.True(true)
   
