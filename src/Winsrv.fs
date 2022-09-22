@@ -1,4 +1,5 @@
-﻿//module Winsrv
+﻿module Winsrv
+let a = ()
 
 //type Service = { name: string; start_type: string; status: string }
 //let inline getServices () =

@@ -1,4 +1,5 @@
-﻿//module InternetOption
+﻿module InternetOption
+let a = ()
 
 //  open Microsoft.Win32
 //  open FSharp.Core.CompilerServices

@@ -1,4 +1,5 @@
-﻿//module Reg
+﻿module Reg
+let a = ()
 
 //open Microsoft.FSharp.Core.CompilerServices
 //open Microsoft.Win32

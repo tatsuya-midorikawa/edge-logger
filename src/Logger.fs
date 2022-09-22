@@ -1,4 +1,6 @@
-﻿//module Logger
+﻿module Logger
+let a = ()
+
 //open System.IO
 
 //let combine = Path.Combine >> FilePath

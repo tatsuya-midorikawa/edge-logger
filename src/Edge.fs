@@ -1,4 +1,5 @@
-﻿//module Edge
+﻿module Edge
+let a = ()
 
 //open System.IO
 

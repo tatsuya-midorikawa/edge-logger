@@ -1,4 +1,6 @@
-﻿//module Env
+﻿module Env
+let a = ()
+
 
 //open System.IO
 

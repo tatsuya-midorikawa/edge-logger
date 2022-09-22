@@ -1,4 +1,5 @@
-﻿//module Cmd
+﻿module Cmd
+let a = ()
 
 //open System
 //open System.Diagnostics

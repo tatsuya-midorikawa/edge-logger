@@ -1,4 +1,5 @@
-﻿//module EdgePolicy
+﻿module EdgePolicy
+let a = ()
 
 //  open System
 //  open System.Text.Json.Serialization

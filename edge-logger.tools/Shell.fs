@@ -348,9 +348,7 @@ module Edge =
     let r2 = [| winver'cmd; $"\"{output'path}\"" |] |> (Cmd.chain >> Cmd.exec)
     r1 + r2
 
-  // Microsoft Edge Update logs
-  let private installer'log = [| sysroot'dir; "TEMP"; "msedge_installer.log" |] |> combine'
-  let private installer'cmd dst = $"copy /y \"%s{installer'log}\" \"%s{dst}\""
+  // Microsoft Edge update logs
   let private update'log = [| allusrprofile'dir; "Microsoft"; "EdgeUpdate"; "Log"; |] |> combine'
   let private update'cmd dst = $"copy /y \"%s{update'log}\" \"%s{dst}\"";
   let private intune'log = [| programdata'dir; "Microsoft"; "IntuneManagementExtension"; "Logs"; "IntuneManagementExtension*.log"|] |> combine'
@@ -359,19 +357,34 @@ module Edge =
   let private webview2'update'cmd dst =
     let dst = combine' [| dst; "MicrosoftEdgeUpdate_wv2.log" |]
     $"copy /y \"%s{webview2'update'log}\" \"%s{dst}\"";
+  let output'msedge'update root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    let output'dir = combine' [| root'dir; "edge"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\IntuneManagementExtension*.log
+    //     and    C:\logs\yyyyMMdd_HHmmss\edge\MicrosoftEdgeUpdate.log
+    //     and    C:\logs\yyyyMMdd_HHmmss\edge\MicrosoftEdgeUpdate_wv2.log
+    [| update'cmd output'dir; intune'cmd output'dir; webview2'update'cmd output'dir; |] |> Cmd.exec
+    
+  // Microsoft Edge install logs
+  let private installer'log = [| sysroot'dir; "TEMP"; "msedge_installer.log" |] |> combine'
+  let private installer'cmd dst = $"copy /y \"%s{installer'log}\" \"%s{dst}\""
   let private webview2'inst'log = [| localapp'dir; "Temp"; "msedge_installer.log" |] |> combine'
   let private webview2'inst'cmd dst =
     let dst = combine' [| dst; "msedge_installer_wv2.log" |]
     $"copy /y \"%s{webview2'inst'log}\" \"%s{dst}\"";
-  let output'msedge'update root'dir =
+  let output'msedge'install root'dir =
     if not is'admin then raise (NotSupportedException "Supported only if you have administrative privileges.")
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
     // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
     let output'dir = combine' [| root'dir; "edge"; |]
     Logger.create'output'dir output'dir
-    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer.log and C:\logs\yyyyMMdd_HHmmss\edge\MicrosoftEdgeUpdate.log
-    [| installer'cmd output'dir; update'cmd output'dir; intune'cmd output'dir; webview2'update'cmd output'dir; webview2'inst'cmd output'dir; |] |> Cmd.exec
+    // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer.log
+    //     and    C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer_wv2.log
+    [| installer'cmd output'dir; webview2'inst'cmd output'dir; |] |> Cmd.exec
 
 module IE =
   let private regs = [|
@@ -494,3 +507,27 @@ module Tools =
       [||]
 
   let remove target = [| $"Remove-Item -Path \"%s{target}\" -Recurse -Force" |] |> Pwsh.exec
+
+  // psr /start /output {path} /maxsc 350 /gui 0
+  let private psr'start'cmd path = [| $@"psr /start /output ""{path}"" /maxsc 350 /gui 0" |]
+  let psr'start root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    Logger.create'output'dir root'dir
+    // (2) Output C:\logs\yyyyMMdd_HHmmss\psr.zip
+    [| root'dir; "psr.zip" |]
+    |> (combine' >> psr'start'cmd >> Cmd.exec)
+
+  // psr /stop
+  let private psr'stop'cmd = [| "psr /stop" |]
+  let psr'stop () = psr'stop'cmd |> Cmd.exec
+  
+  // msedge --log-net-log={path}\export.json --net-log-capture-mode=Everything --no-sandbox
+  let private netexport'cmd path = [| $@"""C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"" --log-net-log=""{path}"" --net-log-capture-mode=Everything --no-sandbox" |]
+  let netexport root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    Logger.create'output'dir root'dir
+    // (2) Output C:\logs\yyyyMMdd_HHmmss\export.json
+    [| root'dir; "export.json" |]
+    |> (combine' >> netexport'cmd >> Cmd.exec)

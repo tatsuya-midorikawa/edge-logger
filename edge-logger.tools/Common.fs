@@ -50,21 +50,19 @@ let inline run'as (app: string) (cmds: string[]) =
   let pi = System.Diagnostics.ProcessStartInfo (app,
     Arguments = cmds,
     UseShellExecute = true,
-    // hide console window
-    CreateNoWindow = true,
+    //// hide console window
+    //CreateNoWindow = true,
     // run as adminstrator
     Verb = "runas")
 
-  use p = System.Diagnostics.Process.Start pi
-  p.WaitForExit()
-  p.Close()
+  System.Diagnostics.Process.Start pi
 
 let inline relaunch'as'admin'if'user (cmds: string[]) =
   try
     if not is'admin then
       let asm = System.Reflection.Assembly.GetEntryAssembly()
       let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
-      Ok (run'as app cmds)
+      Ok (run'as app cmds |> ignore)
     else
       Ok ()
   with

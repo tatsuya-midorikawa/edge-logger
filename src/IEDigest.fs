@@ -1,4 +1,5 @@
-﻿//module IEDigest
+﻿module IEDigest
+let a = ()
 
 //open System.IO
 

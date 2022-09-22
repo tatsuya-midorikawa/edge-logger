@@ -18,221 +18,179 @@ let rec wait'for'input () =
   printfn "Entry (y) to exit."
   match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
 
+let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; ]
+let need'admin (args: string[]) =
+  if is'admin 
+  then false
+  else
+    let args = args |> String.concat ", "
+    let rec judge (cmds: list<string>) =
+      match cmds with
+      | h::t -> if args.Contains(h) then true else judge t
+      | _ -> false
+    judge need'admin'cmds
+
+let private must'be'terminated'cmds = [ "-nx"; "-netexport"; "-nsh"; "-netsh"; ]
+let must'be'terminated (args: string[]) =
+  let args = args |> String.concat ", "
+  let rec judge (cmds: list<string>) =
+    match cmds with
+    | h::t -> if args.Contains(h) then true else judge t
+    | _ -> false
+  judge must'be'terminated'cmds && exists'proc "msedge"
+
 type Command () =
   inherit ConsoleAppBase ()
   [<RootCommand>]
   member __.root(
     [<Option("o", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
-    [<Option("w", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
-    [<Option("e", "Output Edge settings info.");Optional;DefaultParameterValue(false)>] edge: bool,
-    [<Option("i", "Output internet option info.");Optional;DefaultParameterValue(false)>] ie: bool,
-    [<Option("u", "Output Logon user info and enviroment info.");Optional;DefaultParameterValue(false)>] usr: bool,
+    [<Option("wsrv", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("egp", "Output Microsoft Edge policy info.");Optional;DefaultParameterValue(false)>] edgepolicy: bool,
+    [<Option("egi", "Output Microsoft Edge installation log.");Optional;DefaultParameterValue(false)>] edgeinst: bool,
+    [<Option("egu", "Output Microsoft Edge update log.");Optional;DefaultParameterValue(false)>] edgeupd: bool,
+    [<Option("inet", "Output internet option info.");Optional;DefaultParameterValue(false)>] inetopt: bool,
+    [<Option("env", "Output Logon user info and enviroment info.");Optional;DefaultParameterValue(false)>] env: bool,
     [<Option("nx", "Collecting net-export logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
     let log = Logger.log dir
-    let root = Logger.root'dir dir
-    root |> function FilePath fp -> create'dir fp
 
     let winsrv'task =
       if full || winsrv
       then 
         task {
-          // Windows Service information
-          try do! Winsrv.getServices() |> Winsrv.collect |> toJson |> Logger.output (Logger.winsrv'filepath dir) with e -> log $"<winsrv>: {e.Message}" |> wait
-          // Task scheduler information
+        // Windows Service information
+          try do! Winsrv.output'win32service'list dir |> log with e -> do! $"<winsrv>: {e.Message}" |> log
           // schtasks /query /V /FO CSV
-          try do! Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath dir) with e -> log $"<schtasks>: {e.Message}" |> wait
-         }
-      else empty'task
-
-    let edge'task =
-      if full || edge 
-      then
-        task {
-          // edge policy registry
-          try do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir) with e -> log $"<edge policy>: {e.Message}" |> wait
-          // msedge_installer.log
-          try Edge.output'installer dir |> ignore with e -> log $"<msedge installer>: {e.Message}" |> wait
-          // MicrosoftEdgeUpdate.log
-          try Edge.output'updatelog dir |> ignore with e -> log $"<MicrosoftEdgeUpdate.log>: {e.Message}" |> wait
+          try do! Winsrv.output'schtasks dir |> log with e -> do! $"<schtasks>: {e.Message}" |> log
         }
       else empty'task
 
-    let ie'task =
-      if full || ie
-      // internet option registry
-      then
+    let edgepolicy'task =
+      if full || edgepolicy
+      then 
         task {
-          // Internet Option registries
-          try do! IEReg.getIeRegistries () |> toJson |> Logger.output (Logger.ie'filepath dir) with e -> log $"<ie registry>: {e.Message}" |> wait
-          // IEDigest
-          try
-            IEDigest.downloads'if'it'doesnt'exist () |> ignore
-            IEDigest.output dir
-            IEDigest.clean ()
-          with e -> log $"<IEDigest>: {e.Message}" |> wait      
+          // msedge version information
+          try do! Edge.output'version dir |> log with e -> do! $"<msedge version>: {e.Message}" |> log
+          // msedge and webview2 policy registry
+          try do! Edge.output'policy dir |> log with e -> do! $"<msedge policy>: {e.Message}" |> log
+          // msedge update policy registry
+          try do! Edge.output'update'policy dir |> log with e -> do! $"<msedge update policy>: {e.Message}" |> log
+          // msedge extensions policy registry
+          try do! Edge.output'ext'policy dir |> log with e -> do! $"<msedge extensions policy>: {e.Message}" |> log
         }
       else empty'task
 
-    let usr'task =
-      if full || usr
-      then
+    let edgeupd'task =
+      if full || edgeupd
+      then 
         task {
-          // dsregcmd /status
-          try do! Env.output'dsregcmd dir  with e -> log $"<dsregcmd>: {e.Message}" |> wait
-          // whoami
-          try do! Env.output'whoami dir  with e -> log $"<whoami>: {e.Message}" |> wait
+          // msedge update logs
+          try do! Edge.output'msedge'update dir |> log with e -> do! $"<msedge update logs>: {e.Message}" |> log
+        }
+      else empty'task
+
+    let edgeinst'task =
+      if full || edgeinst
+      then 
+        task {
+          // msedge installation logs
+          try do! Edge.output'msedge'install dir |> log with e -> do! $"<msedge installation logs>: {e.Message}" |> log
+        }
+      else empty'task
+
+    let inetopt'task =
+      if full || inetopt
+      then 
+        task {
+          // internet options registries
+          try do! IE.output'reg dir |> log with e -> do! $"<internet options>: {e.Message}" |> log
+          // IEDigest logs
+          try do! IEDigest.output dir |> log with e -> do! $"<IEDigest>: {e.Message}" |> log
+        }
+      else empty'task
+
+    let env'task =
+      if full || env
+      then 
+        task {
+          // get-appxpackage | select-object name, version
+          try do! Env.output'appxpackage'list dir |> log with e -> do! $"<get-appxpackage>: {e.Message}" |> log
           // cmdkey /list
-          try do! Env.output'cmdkey dir  with e -> log $"<cmdkey>: {e.Message}" |> wait
-          // get-hotfix
-          try do! Env.output'hotfix dir  with e -> log $"<hotfix>: {e.Message}" |> wait
+          try do! Env.output'cmdkey dir |> log with e -> do! $"<cmdkey>: {e.Message}" |> log
+          // dsregcmd /status
+          try do! Env.output'dsregcmd dir |> log with e -> do! $"<dsregcmd>: {e.Message}" |> log
+          // get-hotofix
+          try do! Env.output'hotfix dir |> log with e -> do! $"<get-hotofix>: {e.Message}" |> log
+          // wmic qfe list
+          try do! Env.output'qfelist dir |> log with e -> do! $"<wmic qfe list>: {e.Message}" |> log
           // systeminfo
-          try do! Env.output'systeminfo dir  with e -> log $"<systeminfo>: {e.Message}" |> wait
-          // qfe list
-          try do! Env.output'qfe dir  with e -> log $"<qfe>: {e.Message}" |> wait
+          try do! Env.output'systeminfo dir |> log with e -> do! $"<systeminfo>: {e.Message}" |> log
+          // whoami
+          try do! Env.output'whoami dir |> log with e -> do! $"<whoami>: {e.Message}" |> log
         }
-      else
-        empty'task
+      else empty'task
 
     // Collection of various configuration information.
     task {
-      try do! winsrv'task with e -> log $"<winsrv'task>: {e.Message}" |> wait
-      try do! edge'task with e -> log $"<edge'task>: {e.Message}" |> wait
-      try do! ie'task with e -> log $"<ie'task>: {e.Message}" |> wait
-      try do! usr'task with e -> log $"<usr'task>: {e.Message}" |> wait
+      try do! winsrv'task with e -> $"<winsrv'task>: {e.Message}" |> (log >> wait)
+      try do! edgepolicy'task with e -> $"<edgepolicy'task>: {e.Message}" |> (log >> wait)
+      try do! edgeupd'task with e -> $"<edgeupd'task>: {e.Message}" |> (log >> wait)
+      try do! edgeinst'task with e -> $"<edgeinst'task>: {e.Message}" |> (log >> wait)
+      try do! inetopt'task with e -> $"<inetopt'task>: {e.Message}" |> (log >> wait)
+      try do! env'task with e -> $"<env'task>: {e.Message}" |> (log >> wait)
     }
     |> wait
     
     // Determine if logging is possible
-    if netexport && exists'proc "msedge" then msgbox'show "To log net-export, exit all msedge.exe and run this app again."
+    if netexport && exists'proc "msedge" then msgbox'show "To log net-export, msedge.exe must be terminated and run this app again."
     else
-      Console.CancelKeyPress.Add(fun _ -> if psr || netexport then Cmd.psr'stop |> Cmd.exec |> ignore)
+      Console.CancelKeyPress.Add(fun _ -> if psr || netexport then Tools.psr'stop () |> ignore)
 
       // start PSR
       if netexport || psr then 
-        Cmd.psr'start root |> Cmd.exec |> ignore
+        try Tools.psr'start dir with e -> $"<psr start>: {e.Message}" 
+        |> (log >> wait)
       
       // Collecting net-export logs.
       if netexport then
-        try
-          Cmd.netexport root |> Cmd.exec |> ignore
-        with
-          e -> log $"<net-export>: {e.Message}" |> wait
+        try Tools.netexport dir with e -> $"<net-export>: {e.Message}"
+        |> (log >> wait)
        
       // stop PSR
       if netexport || psr then 
         wait'for'input ()
-        Cmd.psr'stop |> Cmd.exec |> ignore
+        try Tools.psr'stop () with e -> $"<psr stop>: {e.Message}" 
+        |> (log >> wait)
 
-      Cmd.exec [$"explorer %s{dir}"] |> ignore
+      Cmd.exec [| $"explorer %s{dir}" |] |> ignore
+    ()
   
 #if DEBUG
 [<EntryPoint>]
 let main args =
   let dir = "C:\\logs" |> Path.GetFullPath
-  //Pwsh.hotfix |> Pwsh.exec |> printfn "%s"
-  //clear()
-  //Cmd.exec [$"explorer %s{dir}"] |> ignore
-
-  //System.Threading.Tasks.Task.WaitAll (Cmd.schtasks |> Cmd.exec |> Logger.output (Logger.schtasks'filepath "C:\\logs"))
-  //task {
-  //  do! EdgePolicy.fetch () |> toJson |> Logger.output (Logger.edge'filepath dir)
-  //  EdgePolicy.installer'log |> Logger.copy (Logger.edge'installer'filepath dir)
-  //  EdgePolicy.update'log |> Logger.copy (Logger.edge'update'filepath dir)
-  //}
-  //|> System.Threading.Tasks.Task.WaitAll 
-
-  //Reg.read (root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
-  //Reg.read (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
-  //|> toJson
-  //|> printfn "%s"
-
-  //[|
-  //  (root.HKLM,  @"SOFTWARE\Policies\Microsoft\Edge")
-  //  (root.HKCU,  @"SOFTWARE\Policies\Microsoft\Edge")
-  //|]
-  //|> Reg.reads
-  //|> toJson
-  //|> printfn "%s"
-
-  //System.Diagnostics.Process.GetProcesses()
-  //|> Array.filter (fun p -> p.ProcessName = "msedge")
-  //|> Array.map (fun p -> sprintf "taskkill /pid %d" p.Id)
-  //|> Cmd.exec
-  //|> ignore
-
-  //[| "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe\" --log-net-log=\"C:\\logs\\export.json\" --net-log-capture-mode=Everything" |]
-  //|> Cmd.exec
-  //|> ignore
-
-  //printfn "test"
-  //System.Console.ReadLine() |> printfn "%s"
-
-
-  //IEDigest.download @"C:\logs"
-  //|> Pwsh.unzip
-  //|> Pwsh.exec
-  //|> ignore
-
-  //"./"
-  //|> Path.GetFullPath
-  //|> printfn "%s"
-
-  //IEDigest.download @"C:\logs"
-  //|> Pwsh.unzip
-  //|> Pwsh.run'as true
-  //|> ignore
-
-
-  //Cmd.dsregcmd |> Cmd.run'as true |> printfn "%s"
-  //Pwsh.hotfix |> Pwsh.run'as true |> printfn "%s"
-
-  //Pwsh.set'hesp false |> Pwsh.run'as true |> printfn "%s"
-  //Pwsh.rem'hesp () |> Pwsh.run'as
-
-  //use client = Pipes.create'pwsh'client()
-  //try
-  //  client.Connect()
-  //  client |> Pipes.write "test message"
-  //  client |> Pipes.write "/exit"
-  //  client |> Pipes.read |> printfn "%s"
-  //  printfn "fin."
-  //finally
-  //  client.Close()
-  
-  //Process.GetProcessesByName("msedge")
-  //|> Array.map (fun p -> p.ProcessName)
-  //|> Array.iter (printfn "%s")
-  
-  //Process.GetProcessesByName("iexplore")
-  //|> Array.map (fun p -> p.ProcessName)
-  //|> Array.iter (printfn "%s")
-
-  //IEDigest.downloads'if'it'doesnt'exist () |> ignore
-  //IEDigest.output dir
-  //IEDigest.clean ()
-
-  //Edge.output'installer dir |> ignore
-  //Edge.output'updatelog dir |> ignore
-
-  //let asm = System.Reflection.Assembly.GetEntryAssembly()
-  //(asm.Location, ".exe")
-  //|> System.IO.Path.ChangeExtension 
-  //|> printfn "%s"
-
   args |> String.concat ", " |> printfn "%s"
-  relaunch'as'admin'if'user args
-  System.Console.ReadKey() |> ignore
 
+  if must'be'terminated args
+  then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
+
+  //if need'admin args 
+  //then relaunch'as'admin'if'user args |> ignore
+  //else System.Console.ReadKey() |> ignore
   0
 
 #else
 [<EntryPoint>]
 let main args =
-  ConsoleApp.Run<Command>(args)
-  clear()
-  printfn "This process has been completed."
+  if must'be'terminated args
+  then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
+  else
+    if need'admin args 
+    then relaunch'as'admin'if'user args |> ignore
+    else ConsoleApp.Run<Command>(args)
+    clear()
+    printfn "This process has been completed."
   0
 #endif

@@ -1,4 +1,5 @@
-﻿//module Pwsh
+﻿module Pwsh
+let a = ()
 
 //open System
 //open System.Diagnostics
