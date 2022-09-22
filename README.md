@@ -15,6 +15,8 @@ Specify command options for log information to be output.
 | -inet | Output internet option logs. | - |
 | -env | Output Logon user info and enviroment logs. | - |
 | -nx | Collecting net-export and psr logs. | - |
+| -nsh | Collecting netsh and psr logs. | ✅ |
+| -nw | Collecting netsh, net-export and psr logs. | ✅ |
 | -psr | Collecting psr logs. | - |
 | -f | Output all logs. | ✅ |
 
