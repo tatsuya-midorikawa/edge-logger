@@ -20,7 +20,7 @@ let rec wait'for'input () =
 
 let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; "-f"; "-full"; ]
 let need'admin (args: string[]) =
-  if is'admin 
+  if is'admin
   then false
   else
     let args = args |> String.concat ", "
@@ -170,15 +170,23 @@ type Command () =
 #if DEBUG
 [<EntryPoint>]
 let main args =
-  let dir = "C:\\logs" |> Path.GetFullPath
-  args |> String.concat ", " |> printfn "%s"
+  //let dir = "C:\\logs" |> Path.GetFullPath
+  //args |> String.concat ", " |> printfn "%s"
 
-  if must'be'terminated args
-  then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
+  //if must'be'terminated args
+  //then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
 
   //if need'admin args 
   //then relaunch'as'admin'if'user args |> ignore
   //else System.Console.ReadKey() |> ignore
+  if must'be'terminated args
+  then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
+  else
+    if need'admin args 
+    then relaunch'as'admin'if'user args |> ignore
+    else ConsoleApp.Run<Command>(args)
+    //clear()
+    printfn "This process has been completed."
   0
 
 #else

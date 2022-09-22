@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="runtimeconfig.template.json" />
     <Compile Include="Common.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Cmd.fs" />
@@ -35,6 +36,8 @@
     <Compile Include="Winsrv.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
   <ItemGroup>
     <PackageReference Include="ConsoleAppFramework" Version="4.2.2" />

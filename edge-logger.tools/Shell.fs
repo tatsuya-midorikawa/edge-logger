@@ -361,7 +361,7 @@ module Edge =
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
     // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
-    let output'dir = combine' [| root'dir; "edge"; |]
+    let output'dir = combine' [| root'dir; "edge"; "update"; |]
     Logger.create'output'dir output'dir
     // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\IntuneManagementExtension*.log
     //     and    C:\logs\yyyyMMdd_HHmmss\edge\MicrosoftEdgeUpdate.log
@@ -380,7 +380,7 @@ module Edge =
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
     // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
-    let output'dir = combine' [| root'dir; "edge"; |]
+    let output'dir = combine' [| root'dir; "edge"; "install"; |]
     Logger.create'output'dir output'dir
     // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer.log
     //     and    C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer_wv2.log

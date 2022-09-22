@@ -59,11 +59,16 @@ let inline run'as (app: string) (cmds: string[]) =
 
 let inline relaunch'as'admin'if'user (cmds: string[]) =
   try
+    printfn $"000"
     if not is'admin then
-      let asm = System.Reflection.Assembly.GetEntryAssembly()
-      let app = (asm.Location, ".exe") |> System.IO.Path.ChangeExtension
+      printfn $"aaa"
+      let mutable asm = System.Reflection.Assembly.GetEntryAssembly().Location
+      asm <- if System.String.IsNullOrWhiteSpace asm then combine' [| System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase; "edge-logger.exe" |] else asm
+      let app = (asm, ".exe") |> System.IO.Path.ChangeExtension
       Ok (run'as app cmds |> ignore)
     else
       Ok ()
   with
-  | e -> Error e.Message
+  | e ->
+    printfn $"{e.Message}"
+    Error e.Message
