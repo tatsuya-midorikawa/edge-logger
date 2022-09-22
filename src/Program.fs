@@ -19,7 +19,7 @@ let need'admin (args: string[]) =
       | _ -> false
     judge need'admin'cmds
 
-let private must'be'terminated'cmds = [ "-nx"; "-netexport"; "-nsh"; "-netsh"; ]
+let private must'be'terminated'cmds = [ "-nx"; "-netexport"; "-nsh"; "-netsh"; "-nw"; "-network"; ]
 let must'be'terminated (args: string[]) =
   let args = args |> String.concat ", "
   let rec judge (cmds: list<string>) =
