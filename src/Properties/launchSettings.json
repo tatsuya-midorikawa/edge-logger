@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "edge-logger": {
+      "commandName": "Project",
+      "commandLineArgs": "-f"
+    }
+  }
+}

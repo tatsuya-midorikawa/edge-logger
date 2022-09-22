@@ -6,13 +6,17 @@ This tool is designed to retrieve information related to Microsoft Edge.
 
 Specify command options for log information to be output.
 
-| option | description |
-| :-- | :-- |
-| -w | Output Windows services logs. |
-| -e | Output Edge policy logs. |
-| -i | Output internet option logs. |
-| -u | Output Logon user info logs. |
-| -f | Output all logs. |
+| option | description | requires an admin |
+| :-- | :-- | :--: |
+| -wsrv | Output Windows services logs. | - |
+| -egp | Output Microsoft Edge policy logs. | - |
+| -egi | Output Microsoft Edge installation logs. | ✅ |
+| -egu | Output Microsoft Edge update logs. | - |
+| -inet | Output internet option logs. | - |
+| -env | Output Logon user info and enviroment logs. | - |
+| -nx | Collecting net-export and psr logs. | - |
+| -psr | Collecting psr logs. | - |
+| -f | Output all logs. | ✅ |
 
 If you want to output all logs, do the following:
 
@@ -22,18 +26,18 @@ edge-logger.exe -f
 
 Also, if you want only Windows services and Edge logs to be output, specify as follows:
 ```cmd
-edge-logger.exe -w -e
+edge-logger.exe -wsrv -egp
 ```
 
 The output directory is C:\logs by default.
 To change it, specify the following options:
 
-| option | description |
-| :-- | :-- |
-| -d &lt;path&gt; | Specify the output directory for log. |
+| option | description | default |
+| :-- | :-- | :-- |
+| -o &lt;path&gt; | Specify the output directory for log. | C:\logs |
 
 For example:
 
 ```cmd
-edge-logger.exe -d "C:\dist\output"
+edge-logger.exe -o "C:\dist\output"
 ```
