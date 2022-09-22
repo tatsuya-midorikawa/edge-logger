@@ -18,7 +18,7 @@ let rec wait'for'input () =
   printfn "Entry (y) to exit."
   match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
 
-let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; ]
+let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; "-f"; "-full"; ]
 let need'admin (args: string[]) =
   if is'admin 
   then false
