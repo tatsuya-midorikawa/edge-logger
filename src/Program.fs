@@ -44,13 +44,13 @@ type Command () =
   [<RootCommand>]
   member __.root(
     [<Option("o", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
-    [<Option("wsrv", "Output Windows settings info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("wsrv", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("egp", "Output Microsoft Edge policy info.");Optional;DefaultParameterValue(false)>] edgepolicy: bool,
     [<Option("egi", "Output Microsoft Edge installation log.");Optional;DefaultParameterValue(false)>] edgeinst: bool,
     [<Option("egu", "Output Microsoft Edge update log.");Optional;DefaultParameterValue(false)>] edgeupd: bool,
     [<Option("inet", "Output internet option info.");Optional;DefaultParameterValue(false)>] inetopt: bool,
     [<Option("env", "Output Logon user info and enviroment info.");Optional;DefaultParameterValue(false)>] env: bool,
-    [<Option("nx", "Collecting net-export logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
+    [<Option("nx", "Collecting net-export and psr logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
