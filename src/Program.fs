@@ -60,7 +60,7 @@ type Command () =
       else empty'task
 
     let edgepolicy'task =
-      if full || edgepolicy
+      if full || edge || edgepolicy
       then 
         task {
           // msedge version information
@@ -75,7 +75,7 @@ type Command () =
       else empty'task
 
     let edgeupd'task =
-      if full || edgeupd
+      if full || edge || edgeupd
       then 
         task {
           // msedge update logs
@@ -84,7 +84,7 @@ type Command () =
       else empty'task
 
     let edgeinst'task =
-      if full || edgeinst
+      if full || edge || edgeinst
       then 
         task {
           // msedge installation logs
