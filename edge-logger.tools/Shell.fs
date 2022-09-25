@@ -367,7 +367,7 @@ module Edge =
     let dst = combine' [| dst; "msedge_installer_wv2.log" |]
     $"copy /y \"%s{webview2'inst'log}\" \"%s{dst}\"";
   let output'msedge'install root'dir =
-    if not is'admin then raise (NotSupportedException "Supported only if you have administrative privileges.")
+    if not is'admin then raise (notsupportedexn "Supported only if you have administrative privileges.")
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
     // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
@@ -478,7 +478,7 @@ module ProcessMitigation =
       [| $"Set-ProcessMitigation -name msedge.exe {enabled} UserShadowStack" |]
       |> Pwsh.exec
     else
-      raise (NotSupportedException "Supported only if you have administrative privileges.")
+      raise (notsupportedexn "Supported only if you have administrative privileges.")
 
   // TODO:
   let rem'hesp () =

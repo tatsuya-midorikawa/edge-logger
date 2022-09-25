@@ -7,6 +7,7 @@ type root = HKLM = 0 | HKCU = 1
 type dict<'T, 'U> = System.Collections.Generic.Dictionary<'T, 'U>
 type pair = System.Collections.Generic.KeyValuePair<string, obj> 
 type regs = seq<root * string>
+type notsupportedexn = System.NotSupportedException
 type proc = {
   value : System.Diagnostics.Process
   stdout : System.Text.StringBuilder
