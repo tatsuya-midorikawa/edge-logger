@@ -7,7 +7,30 @@ type root = HKLM = 0 | HKCU = 1
 type dict<'T, 'U> = System.Collections.Generic.Dictionary<'T, 'U>
 type pair = System.Collections.Generic.KeyValuePair<string, obj> 
 type regs = seq<root * string>
-
+type notsupportedexn = System.NotSupportedException
+type proc = {
+  value : System.Diagnostics.Process
+  stdout : System.Text.StringBuilder
+}
+with
+  static member empty = { value = null; stdout = null }
+  static member start (pinf: System.Diagnostics.ProcessStartInfo) =
+    let p = { value = System.Diagnostics.Process.Start pinf; stdout = System.Text.StringBuilder() }
+    p.value.OutputDataReceived.Add (fun e -> if e.Data <> null then p.stdout.AppendLine(e.Data) |> ignore)
+    p.value.BeginOutputReadLine()
+    p
+  member __.exec (cmd: string) =
+    if __.value <> null then
+      __.value.StandardInput.WriteLine cmd
+  member __.close() =
+    if __.value <> null 
+    then
+      __.value.StandardInput.WriteLine "exit"
+      __.value.WaitForExit()    
+      __.value.Dispose()
+      __.stdout.ToString()
+    else
+      ""
 // Common values
 let defaultof<'T> = Unchecked.defaultof<'T>
 let http = new System.Net.Http.HttpClient()
@@ -18,6 +41,12 @@ let is'admin =
   use identity = System.Security.Principal.WindowsIdentity.GetCurrent()
   let principal = System.Security.Principal.WindowsPrincipal(identity);
   principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+
+// Common functions
+let readkey() = System.Console.ReadKey()
+let rec wait'for'input () =
+  printfn "Entry (y) to exit."
+  match readkey().Key with System.ConsoleKey.Y -> () | _ -> wait'for'input()
 
 // System
 let inline clear () = System.Console.Clear()

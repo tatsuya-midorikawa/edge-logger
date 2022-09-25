@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="experiment.fs" />
     <Compile Include="LoggerTest.fs" />
     <Compile Include="IEDigestTest.fs" />
     <Compile Include="PwshTest.fs" />

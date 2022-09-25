@@ -1,41 +1,30 @@
 ﻿open jp.dsi.logger.tools
 
-open Microsoft.Win32
-open System.IO
 open System.Diagnostics
-open System.Web
 open System
 open System.Linq
-open System.Collections.Generic
-
-open InternetOption
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
 let inline exists'proc process'name = 0 < Process.GetProcessesByName(process'name).Length
-let inline readkey() = System.Console.ReadKey()
-let rec wait'for'input () =
-  printfn "Entry (y) to exit."
-  match readkey().Key with ConsoleKey.Y -> () | _ -> wait'for'input()
 
-let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; "-f"; "-full"; ]
+let private need'admin'cmds = [ "-e"; "--edge"; "-egi"; "--edgeinst"; "-nsh"; "--netsh"; "-nw"; "--network"; "-f"; "--full"; ]
 let need'admin (args: string[]) =
   if is'admin
   then false
   else
-    let args = args |> String.concat ", "
     let rec judge (cmds: list<string>) =
       match cmds with
-      | h::t -> if args.Contains(h) then true else judge t
+      | h::t -> if args.Any(fun x -> x = h) then true else judge t
       | _ -> false
+
     judge need'admin'cmds
 
-let private must'be'terminated'cmds = [ "-nx"; "-netexport"; "-nsh"; "-netsh"; ]
+let private must'be'terminated'cmds = [ "-nx"; "--netexport"; "-nsh"; "--netsh"; "-nw"; "--network"; ]
 let must'be'terminated (args: string[]) =
-  let args = args |> String.concat ", "
   let rec judge (cmds: list<string>) =
     match cmds with
-    | h::t -> if args.Contains(h) then true else judge t
+    | h::t -> if args.Any(fun x -> x = h) then true else judge t
     | _ -> false
   judge must'be'terminated'cmds && exists'proc "msedge"
 
@@ -45,12 +34,15 @@ type Command () =
   member __.root(
     [<Option("o", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
     [<Option("wsrv", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("e", "Output all Microsoft Edge's logs.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("egp", "Output Microsoft Edge policy info.");Optional;DefaultParameterValue(false)>] edgepolicy: bool,
     [<Option("egi", "Output Microsoft Edge installation log.");Optional;DefaultParameterValue(false)>] edgeinst: bool,
     [<Option("egu", "Output Microsoft Edge update log.");Optional;DefaultParameterValue(false)>] edgeupd: bool,
     [<Option("inet", "Output internet option info.");Optional;DefaultParameterValue(false)>] inetopt: bool,
     [<Option("env", "Output Logon user info and enviroment info.");Optional;DefaultParameterValue(false)>] env: bool,
     [<Option("nx", "Collecting net-export and psr logs.");Optional;DefaultParameterValue(false)>] netexport: bool,
+    [<Option("nsh", "Collecting netsh and psr logs.");Optional;DefaultParameterValue(false)>] netsh: bool,
+    [<Option("nw", "Collecting netsh, net-export and psr logs.");Optional;DefaultParameterValue(false)>] network: bool,
     [<Option("psr", "Collecting psr logs.");Optional;DefaultParameterValue(false)>] psr: bool,
     [<Option("f", "Output full info.");Optional;DefaultParameterValue(false)>] full: bool) = 
     
@@ -68,7 +60,7 @@ type Command () =
       else empty'task
 
     let edgepolicy'task =
-      if full || edgepolicy
+      if full || edge || edgepolicy
       then 
         task {
           // msedge version information
@@ -83,7 +75,7 @@ type Command () =
       else empty'task
 
     let edgeupd'task =
-      if full || edgeupd
+      if full || edge || edgeupd
       then 
         task {
           // msedge update logs
@@ -92,7 +84,7 @@ type Command () =
       else empty'task
 
     let edgeinst'task =
-      if full || edgeinst
+      if full || edge || edgeinst
       then 
         task {
           // msedge installation logs
@@ -149,20 +141,27 @@ type Command () =
       Console.CancelKeyPress.Add(fun _ -> if psr || netexport then Tools.psr'stop () |> ignore)
 
       // start PSR
-      if netexport || psr then 
+      if network || netsh || netexport || psr then 
         try Tools.psr'start dir with e -> $"<psr start>: {e.Message}" 
         |> (log >> wait)
       
       // Collecting net-export logs.
-      if netexport then
+      if network || netexport then
         try Tools.netexport dir with e -> $"<net-export>: {e.Message}"
         |> (log >> wait)
        
-      // stop PSR
-      if netexport || psr then 
+      // Collecting netsh logs.
+      let nsh'proc =
+        if network || netsh 
+        then try Tools.netsh'start dir with e -> $"<netsh>: {e.Message}" |> (log >> wait); proc.empty
+        else proc.empty
+
+      // stop PSR and netsh
+      if network || netsh || netexport || psr then 
         wait'for'input ()
-        try Tools.psr'stop () with e -> $"<psr stop>: {e.Message}" 
-        |> (log >> wait)
+        try Tools.netsh'stop nsh'proc with e -> $"<netsh>: {e.Message}"|> (log >> wait) 
+        (try nsh'proc.close() with e -> $"<netsh>: {e.Message}") |> (log >> wait)
+        (try Tools.psr'stop () with e -> $"<psr stop>: {e.Message}") |> (log >> wait)
 
       Cmd.exec [| $"explorer %s{dir}" |] |> ignore
     ()
@@ -184,7 +183,7 @@ let main args =
   else
     if need'admin args 
     then relaunch'as'admin'if'user args |> ignore
-    else ConsoleApp.Run<Command>(args)
+    //else ConsoleApp.Run<Command>(args)
     //clear()
     printfn "This process has been completed."
   0

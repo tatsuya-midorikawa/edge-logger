@@ -116,7 +116,7 @@ module Cmd =
     p.WaitForExit()
     stdout.ToString()
 
-  let exec' (callback: string -> unit) (cmds: seq<string>) =
+  let exec' (cmds: seq<string>) =
     let pi = ProcessStartInfo (cmd, 
       // enable commnads input and reading of output
       UseShellExecute = false,
@@ -124,17 +124,8 @@ module Cmd =
       RedirectStandardOutput = true,
       // hide console window
       CreateNoWindow = true)
-  
-    use p = Process.Start pi
-    let stdout = StringBuilder()
-    p.OutputDataReceived.Add (fun e -> if e.Data <> null then stdout.AppendLine(e.Data) |> ignore)
-    p.BeginOutputReadLine()
-    for cmd in cmds do 
-      p.StandardInput.WriteLine cmd
-      callback cmd
-    p.StandardInput.WriteLine "exit"
-    p.WaitForExit()
-    stdout.ToString()
+
+    proc.start pi
 
 module Env =
   // get-hotofix
@@ -376,7 +367,7 @@ module Edge =
     let dst = combine' [| dst; "msedge_installer_wv2.log" |]
     $"copy /y \"%s{webview2'inst'log}\" \"%s{dst}\"";
   let output'msedge'install root'dir =
-    if not is'admin then raise (NotSupportedException "Supported only if you have administrative privileges.")
+    if not is'admin then raise (notsupportedexn "Supported only if you have administrative privileges.")
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
     // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
@@ -487,7 +478,7 @@ module ProcessMitigation =
       [| $"Set-ProcessMitigation -name msedge.exe {enabled} UserShadowStack" |]
       |> Pwsh.exec
     else
-      raise (NotSupportedException "Supported only if you have administrative privileges.")
+      raise (notsupportedexn "Supported only if you have administrative privileges.")
 
   // TODO:
   let rem'hesp () =
@@ -531,3 +522,19 @@ module Tools =
     // (2) Output C:\logs\yyyyMMdd_HHmmss\export.json
     [| root'dir; "export.json" |]
     |> (combine' >> netexport'cmd >> Cmd.exec)
+  
+  // netsh trace start scenario=InternetClient_dbg tracefile="{path}" capture=yes maxSize=300
+  let private netsh'start'cmd path = $"netsh trace start scenario=InternetClient_dbg tracefile=\"{path}\" capture=yes maxSize=300"
+  let netsh'start root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    Logger.create'output'dir root'dir
+    // (2) Start logging
+    let start'cmd = [| root'dir; "protcol.etl" |] |> (combine' >> netsh'start'cmd)
+    [| start'cmd;|] |> Cmd.exec'
+
+  // netsh trace stop
+  let private netsh'stop'cmd = $"netsh trace stop"
+  let netsh'stop (p: proc) =
+    // Output C:\logs\yyyyMMdd_HHmmss\protcol.etl
+    p.exec netsh'stop'cmd

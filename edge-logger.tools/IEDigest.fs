@@ -32,7 +32,7 @@ module IEDigest =
       let dst = [| root'dir'; "ie" |] |> combine'
       Logger.create'output'dir dst
       let r = 
-        [| $"{iedigest'exe} /accepteula /report {dst}" |]
+        [| $"{iedigest'exe} /report {dst}" |]
         |> Pwsh.exec
       if root'dir <> desktop'dir then Tools.remove desktop'dir |> ignore
       r
