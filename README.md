@@ -8,17 +8,18 @@ Specify command options for log information to be output.
 
 | option | description | requires an admin |
 | :-- | :-- | :--: |
-| -wsrv | Output Windows services logs. | - |
-| -egp | Output Microsoft Edge policy logs. | - |
-| -egi | Output Microsoft Edge installation logs. | ✅ |
-| -egu | Output Microsoft Edge update logs. | - |
-| -inet | Output internet option logs. | - |
-| -env | Output Logon user info and enviroment logs. | - |
-| -nx | Collecting net-export and psr logs. | - |
-| -nsh | Collecting netsh and psr logs. | ✅ |
-| -nw | Collecting netsh, net-export and psr logs. | ✅ |
-| -psr | Collecting psr logs. | - |
-| -f | Output all logs. | ✅ |
+| -wsrv, --winsrv | Output Windows services logs. | - |
+| -e, --edge | Output all Microsoft Edge's logs. | ✅ |
+| -egp, --edgepolicy | Output Microsoft Edge policy logs. | - |
+| -egi, --edgeinst | Output Microsoft Edge installation logs. | ✅ |
+| -egu, --edgeupd | Output Microsoft Edge update logs. | - |
+| -inet, --inetopt | Output internet option logs. | - |
+| -env, --env | Output Logon user info and enviroment logs. | - |
+| -nx, --netexport | Collecting net-export and psr logs. | - |
+| -nsh, --netsh | Collecting netsh and psr logs. | ✅ |
+| -nw, --network | Collecting netsh, net-export and psr logs. | ✅ |
+| -psr, --psr | Collecting psr logs. | - |
+| -f, --full | Output all logs. | ✅ |
 
 If you want to output all logs, do the following:
 
@@ -36,7 +37,7 @@ To change it, specify the following options:
 
 | option | description | default |
 | :-- | :-- | :-- |
-| -o &lt;path&gt; | Specify the output directory for log. | C:\logs |
+| -o &lt;path&gt;, --dir &lt;path&gt; | Specify the output directory for log. | C:\logs |
 
 For example:
 

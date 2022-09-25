@@ -2,7 +2,7 @@
   "profiles": {
     "edge-logger": {
       "commandName": "Project",
-      "commandLineArgs": "-f"
+      "commandLineArgs": "-a -b -c"
     }
   }
 }

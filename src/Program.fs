@@ -2,29 +2,29 @@
 
 open System.Diagnostics
 open System
+open System.Linq
 open ConsoleAppFramework
 open System.Runtime.InteropServices
 
 let inline exists'proc process'name = 0 < Process.GetProcessesByName(process'name).Length
 
-let private need'admin'cmds = [ "-egi"; "-edgeinst"; "-nsh"; "-netsh"; "-nw"; "-network"; "-f"; "-full"; ]
+let private need'admin'cmds = [ "-e"; "--edge"; "-egi"; "--edgeinst"; "-nsh"; "--netsh"; "-nw"; "--network"; "-f"; "--full"; ]
 let need'admin (args: string[]) =
   if is'admin
   then false
   else
-    let args = args |> String.concat ", "
     let rec judge (cmds: list<string>) =
       match cmds with
-      | h::t -> if args.Contains(h) then true else judge t
+      | h::t -> if args.Any(fun x -> x = h) then true else judge t
       | _ -> false
+
     judge need'admin'cmds
 
-let private must'be'terminated'cmds = [ "-nx"; "-netexport"; "-nsh"; "-netsh"; "-nw"; "-network"; ]
+let private must'be'terminated'cmds = [ "-nx"; "--netexport"; "-nsh"; "--netsh"; "-nw"; "--network"; ]
 let must'be'terminated (args: string[]) =
-  let args = args |> String.concat ", "
   let rec judge (cmds: list<string>) =
     match cmds with
-    | h::t -> if args.Contains(h) then true else judge t
+    | h::t -> if args.Any(fun x -> x = h) then true else judge t
     | _ -> false
   judge must'be'terminated'cmds && exists'proc "msedge"
 
@@ -34,6 +34,7 @@ type Command () =
   member __.root(
     [<Option("o", "Specify the output dir for log.");Optional;DefaultParameterValue(@"C:\logs")>] dir: string,
     [<Option("wsrv", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
+    [<Option("e", "Output all Microsoft Edge's logs.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("egp", "Output Microsoft Edge policy info.");Optional;DefaultParameterValue(false)>] edgepolicy: bool,
     [<Option("egi", "Output Microsoft Edge installation log.");Optional;DefaultParameterValue(false)>] edgeinst: bool,
     [<Option("egu", "Output Microsoft Edge update log.");Optional;DefaultParameterValue(false)>] edgeupd: bool,
@@ -182,7 +183,7 @@ let main args =
   else
     if need'admin args 
     then relaunch'as'admin'if'user args |> ignore
-    else ConsoleApp.Run<Command>(args)
+    //else ConsoleApp.Run<Command>(args)
     //clear()
     printfn "This process has been completed."
   0
