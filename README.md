@@ -10,15 +10,15 @@ Specify command options for log information to be output.
 | :-- | :-- | :--: |
 | -wsrv, --winsrv | Output Windows services logs. | - |
 | -e, --edge | Output all Microsoft Edge's logs. | ✅ |
-| -egp, --edgepolicy | Output Microsoft Edge policy logs. | - |
-| -egc, --edgecrash | Output Microsoft Edge crash reports. | - |
-| -egi, --edgeinst | Output Microsoft Edge installation logs. | ✅ |
-| -egu, --edgeupd | Output Microsoft Edge update logs. | - |
+| &nbsp;&nbsp;├&nbsp;&nbsp;&nbsp; -egp, --edgepolicy | Output Microsoft Edge policy logs. | - |
+| &nbsp;&nbsp;├&nbsp;&nbsp;&nbsp; -egc, --edgecrash | Output Microsoft Edge crash reports. | - |
+| &nbsp;&nbsp;├&nbsp;&nbsp;&nbsp; -egi, --edgeinst | Output Microsoft Edge installation logs. | ✅ |
+| &nbsp;&nbsp;└&nbsp;&nbsp;&nbsp; -egu, --edgeupd | Output Microsoft Edge update logs. | - |
 | -inet, --inetopt | Output internet option logs. | - |
 | -env, --env | Output Logon user info and enviroment logs. | - |
-| -nx, --netexport | Collecting net-export and psr logs. | - |
-| -nsh, --netsh | Collecting netsh and psr logs. | ✅ |
 | -nw, --network | Collecting netsh, net-export and psr logs. | ✅ |
+| &nbsp;&nbsp;├&nbsp;&nbsp;&nbsp; -nx, --netexport | Collecting net-export and psr logs. | - |
+| &nbsp;&nbsp;└&nbsp;&nbsp;&nbsp; -nsh, --netsh | Collecting netsh and psr logs. | ✅ |
 | -psr, --psr | Collecting psr logs. | - |
 | -f, --full | Output all logs. | ✅ |
 
