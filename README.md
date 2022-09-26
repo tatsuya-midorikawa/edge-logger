@@ -11,6 +11,7 @@ Specify command options for log information to be output.
 | -wsrv, --winsrv | Output Windows services logs. | - |
 | -e, --edge | Output all Microsoft Edge's logs. | ✅ |
 | -egp, --edgepolicy | Output Microsoft Edge policy logs. | - |
+| -egc, --edgecrash | Output Microsoft Edge crash reports. | - |
 | -egi, --edgeinst | Output Microsoft Edge installation logs. | ✅ |
 | -egu, --edgeupd | Output Microsoft Edge update logs. | - |
 | -inet, --inetopt | Output internet option logs. | - |
