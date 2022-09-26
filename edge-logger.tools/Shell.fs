@@ -351,7 +351,7 @@ module Edge =
   let output'msedge'update root'dir =
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
-    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge\update
     let output'dir = combine' [| root'dir; "edge"; "update"; |]
     Logger.create'output'dir output'dir
     // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\IntuneManagementExtension*.log
@@ -370,12 +370,24 @@ module Edge =
     if not is'admin then raise (notsupportedexn "Supported only if you have administrative privileges.")
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
-    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\winsrv
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge\install
     let output'dir = combine' [| root'dir; "edge"; "install"; |]
     Logger.create'output'dir output'dir
     // (3) Output C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer.log
     //     and    C:\logs\yyyyMMdd_HHmmss\edge\msedge_installer_wv2.log
     [| installer'cmd output'dir; webview2'inst'cmd output'dir; |] |> Cmd.exec
+
+  // Microsoft Edge crash reports
+  let private crashrep'log = [| localapp'dir; "Microsoft"; "Edge"; "User Data"; "Crashpad"; "reports"; |] |> combine'
+  let private crashrep'cmd dst = $"copy /y \"%s{crashrep'log}\" \"%s{dst}\"";
+  let output'crashreport root'dir =
+    // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
+    let root'dir = Logger.get'root'dir root'dir
+    // (2) C:\logs\yyyyMMdd_HHmmss to C:\logs\yyyyMMdd_HHmmss\edge\crash
+    let output'dir = combine' [| root'dir; "edge"; "crash"; |]
+    Logger.create'output'dir output'dir
+    // (3) Output %USERPROFILE%\AppData\Local\Microsoft\Edge\User Data\Crashpad\reports
+    [| crashrep'cmd output'dir; |] |> Cmd.exec
 
 module IE =
   let private regs = [|

@@ -65,3 +65,8 @@ type experiment (output: ITestOutputHelper) =
     //match split' span with
     //| t'.Empty -> log "empty"
     //| t'.Some (head, tail) -> tail.ToArray() |> Array.iter log
+    
+  [<Fact>]
+  member __.``exp.003`` () =
+    System.Environment.GetFolderPath(System.Environment.SpecialFolder.LocalApplicationData)
+    |> log
