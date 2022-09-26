@@ -36,6 +36,7 @@ type Command () =
     [<Option("wsrv", "Output Windows services info.");Optional;DefaultParameterValue(false)>] winsrv: bool,
     [<Option("e", "Output all Microsoft Edge's logs.");Optional;DefaultParameterValue(false)>] edge: bool,
     [<Option("egp", "Output Microsoft Edge policy info.");Optional;DefaultParameterValue(false)>] edgepolicy: bool,
+    [<Option("egc", "Output Microsoft Edge crash reports.");Optional;DefaultParameterValue(false)>] edgecrash: bool,
     [<Option("egi", "Output Microsoft Edge installation log.");Optional;DefaultParameterValue(false)>] edgeinst: bool,
     [<Option("egu", "Output Microsoft Edge update log.");Optional;DefaultParameterValue(false)>] edgeupd: bool,
     [<Option("inet", "Output internet option info.");Optional;DefaultParameterValue(false)>] inetopt: bool,
@@ -92,6 +93,15 @@ type Command () =
         }
       else empty'task
 
+    let edgecrash'task =
+      if full || edge || edgecrash
+      then 
+        task {
+          // msedge crash report logs
+          try do! Edge.output'crashreport dir |> log with e -> do! $"<msedge crash report logs>: {e.Message}" |> log
+        }
+      else empty'task
+
     let inetopt'task =
       if full || inetopt
       then 
@@ -130,6 +140,7 @@ type Command () =
       try do! edgepolicy'task with e -> $"<edgepolicy'task>: {e.Message}" |> (log >> wait)
       try do! edgeupd'task with e -> $"<edgeupd'task>: {e.Message}" |> (log >> wait)
       try do! edgeinst'task with e -> $"<edgeinst'task>: {e.Message}" |> (log >> wait)
+      try do! edgecrash'task with e -> $"<edgecrash'task>: {e.Message}" |> (log >> wait)
       try do! inetopt'task with e -> $"<inetopt'task>: {e.Message}" |> (log >> wait)
       try do! env'task with e -> $"<env'task>: {e.Message}" |> (log >> wait)
     }
@@ -183,7 +194,7 @@ let main args =
   else
     if need'admin args 
     then relaunch'as'admin'if'user args |> ignore
-    //else ConsoleApp.Run<Command>(args)
+    else ConsoleApp.Run<Command>(args)
     //clear()
     printfn "This process has been completed."
   0
