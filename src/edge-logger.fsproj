@@ -6,7 +6,7 @@
 		<OutputType>Exe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>jp.dsi.logger</RootNamespace>
-		<Version>0.0.4</Version>
+		<Version>0.0.4.1</Version>
     <Copyright>© 2022 Tatsuya Midorikawa. All rights rserved</Copyright>
     <AssemblyName>edge-logger</AssemblyName>
     <BaseOutputPath>..\bin</BaseOutputPath>
