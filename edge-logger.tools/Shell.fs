@@ -553,3 +553,5 @@ module Tools =
   let netsh'stop (p: proc) =
     // Output C:\logs\yyyyMMdd_HHmmss\protcol.etl
     p.exec netsh'stop'cmd
+
+  let netsh'force'stop () = [| netsh'stop'cmd |] |> Cmd.exec

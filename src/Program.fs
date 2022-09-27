@@ -177,6 +177,27 @@ type Command () =
       Cmd.exec [| $"explorer %s{dir}" |] |> ignore
     ()
   
+  [<Command("stop")>]
+  member __.stop ([<Option("p", "parameters");>] ps: string[]) =
+    let need'admin'cmds = [ "netsh" ]
+    let need'admin (args: string[]) =
+      if is'admin
+      then false
+      else
+        let rec judge (cmds: list<string>) =
+          match cmds with
+          | h::t -> if args.Any(fun x -> x = h) then true else judge t
+          | _ -> false
+        judge need'admin'cmds
+    
+    if need'admin ps 
+    then relaunch'as'admin'if'user __.Context.Arguments |> ignore
+    else
+      if ps.Any(fun p -> p = "netsh") then
+        try Tools.netsh'force'stop () |> ignore with e -> printfn $"<netsh force stop>: {e.Message}"
+      if ps.Any(fun p -> p = "psr") then
+        try Tools.psr'stop () |> ignore with e -> printfn $"psr stop>: {e.Message}"
+
 #if DEBUG
 [<EntryPoint>]
 let main args =
