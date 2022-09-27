@@ -125,7 +125,10 @@ module Cmd =
       // hide console window
       CreateNoWindow = true)
 
-    proc.start pi
+    let p = proc.start pi
+    for cmd in cmds do p.exec cmd
+    p
+
 
 module Env =
   // get-hotofix
