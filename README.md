@@ -6,7 +6,7 @@ This tool is designed to retrieve information related to Microsoft Edge.
 
 Specify command options for log information to be output.
 
-| <span style="display: inline-block; width:200px">option</span> | (option fullname) | description | require admin permission | included in `-f` |
+| <div style="width:290px">option</div> | (option fullname) | description | require admin permission | included in `-f` |
 | :-- | :-- | :-- | :--: | :--: |
 | -wsrv | --winsrv | Output Windows services logs. | - | ✅ |
 | -e | --edge | Output all Microsoft Edge's logs. | ✅ | ✅ |
