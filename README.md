@@ -67,7 +67,7 @@ edge-logger.exe stop psr
 ```
 
 example 2:
-> **Note**
+> **Important**<br>
 > Parameters must not contain spaces.
 ```cmd
 edge-logger.exe stop psr,netsh
