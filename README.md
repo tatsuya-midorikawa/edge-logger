@@ -6,21 +6,21 @@ This tool is designed to retrieve information related to Microsoft Edge.
 
 Specify command options for log information to be output.
 
-| option | description | require admin permission | included in `-f` |
-| :-- | :-- | :--: | :--: |
-| -wsrv, --winsrv | Output Windows services logs. | - | ✅ |
-| -e, --edge | Output all Microsoft Edge's logs. | ✅ | ✅ |
-| ├ -egp, --edgepolicy | Output Microsoft Edge policy logs. | - | ✅ |
-| ├ -egc, --edgecrash | Output Microsoft Edge crash reports. | - | ✅ |
-| ├ -egi, --edgeinst | Output Microsoft Edge installation logs. | ✅ | ✅ |
-| └ -egu, --edgeupd | Output Microsoft Edge update logs. | - | ✅ |
-| -inet, --inetopt | Output internet option logs. | - | ✅ |
-| -env, --env | Output Logon user info and enviroment logs. | - | ✅ |
-| -nw, --network | Collecting netsh, net-export and psr logs. | ✅ | - |
-| ├ -nx, --netexport | Collecting net-export and psr logs. | - | - |
-| └ -nsh, --netsh | Collecting netsh and psr logs. | ✅ | - |
-| -psr, --psr | Collecting psr logs. | - | - |
-| -f, --full | Output all logs. | ✅ | - |
+| option | (option fullname) | description | require admin permission | included in `-f` |
+| :-- | :-- | :-- | :--: | :--: |
+| -wsrv | --winsrv | Output Windows services logs. | - | ✅ |
+| -e | --edge | Output all Microsoft Edge's logs. | ✅ | ✅ |
+| ├ -egp | --edgepolicy | Output Microsoft Edge policy logs. | - | ✅ |
+| ├ -egc | --edgecrash | Output Microsoft Edge crash reports. | - | ✅ |
+| ├ -egi | --edgeinst | Output Microsoft Edge installation logs. | ✅ | ✅ |
+| └ -egu | --edgeupd | Output Microsoft Edge update logs. | - | ✅ |
+| -inet | --inetopt | Output internet option logs. | - | ✅ |
+| -env | --env | Output Logon user info and enviroment logs. | - | ✅ |
+| -nw | --network | Collecting netsh, net-export and psr logs. | ✅ | - |
+| ├ -nx | -netexport | Collecting net-export and psr logs. | - | - |
+| └ -nsh | --netsh | Collecting netsh and psr logs. | ✅ | - |
+| -psr | --psr | Collecting psr logs. | - | - |
+| -f | --full | Output all logs. | ✅ | - |
 
 If you want to output all logs, do the following:
 
@@ -36,9 +36,9 @@ edge-logger.exe -wsrv -egp
 The output directory is C:\logs by default.
 To change it, specify the following options:
 
-| option | description | default |
-| :-- | :-- | :-- |
-| -o &lt;path&gt;, --dir &lt;path&gt; | Specify the output directory for log. | C:\logs |
+| option | (option fullname) | description | default |
+| :-- | :-- | :-- | :-- |
+| -o &lt;path&gt; | --dir &lt;path&gt; | Specify the output directory for log. | C:\logs |
 
 For example:
 
