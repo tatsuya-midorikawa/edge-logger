@@ -178,7 +178,7 @@ type Command () =
     ()
   
   [<Command("stop")>]
-  member __.stop ([<Option("p", "parameters");>] ps: string[]) =
+  member __.stop ([<Option("p", "parameters");>] parameters: string[]) =
     let need'admin'cmds = [ "netsh" ]
     let need'admin (args: string[]) =
       if is'admin
@@ -190,12 +190,12 @@ type Command () =
           | _ -> false
         judge need'admin'cmds
     
-    if need'admin ps 
+    if need'admin parameters 
     then relaunch'as'admin'if'user __.Context.Arguments |> ignore
     else
-      if ps.Any(fun p -> p = "netsh") then
+      if parameters.Any(fun p -> p = "netsh") then
         try Tools.netsh'force'stop () |> ignore with e -> printfn $"<netsh force stop>: {e.Message}"
-      if ps.Any(fun p -> p = "psr") then
+      if parameters.Any(fun p -> p = "psr") then
         try Tools.psr'stop () |> ignore with e -> printfn $"psr stop>: {e.Message}"
 
 #if DEBUG

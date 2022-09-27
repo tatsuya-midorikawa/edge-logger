@@ -6,7 +6,7 @@ This tool is designed to retrieve information related to Microsoft Edge.
 
 Specify command options for log information to be output.
 
-| option | description | requires an admin |
+| option | description | require admin permission |
 | :-- | :-- | :--: |
 | -wsrv, --winsrv | Output Windows services logs. | - |
 | -e, --edge | Output all Microsoft Edge's logs. | ✅ |
@@ -44,4 +44,31 @@ For example:
 
 ```cmd
 edge-logger.exe -o "C:\dist\output"
+```
+
+## Other Commands
+
+### stop
+The stop command forcibly stops running commands.
+Mainly used when an edge-logger is accidentally terminated.
+
+| option | specifiable parameters |
+| :-- | :-- |
+| -p, --parameters | `psr`, `netsh` |
+
+| parameters | require admin permission |
+| :-- | :--: |
+| `psr` | - |
+| `netsh` | ✅ |
+
+example 1:
+```cmd
+edge-logger.exe stop psr
+```
+
+example 2:
+> **Note**
+> Parameters must not contain spaces.
+```cmd
+edge-logger.exe stop psr,netsh
 ```
