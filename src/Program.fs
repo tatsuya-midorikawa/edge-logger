@@ -177,6 +177,27 @@ type Command () =
       Cmd.exec [| $"explorer %s{dir}" |] |> ignore
     ()
   
+  [<Command("stop")>]
+  member __.stop ([<Option("p", "parameters");>] parameters: string[]) =
+    let need'admin'cmds = [ "netsh" ]
+    let need'admin (args: string[]) =
+      if is'admin
+      then false
+      else
+        let rec judge (cmds: list<string>) =
+          match cmds with
+          | h::t -> if args.Any(fun x -> x = h) then true else judge t
+          | _ -> false
+        judge need'admin'cmds
+    
+    if need'admin parameters 
+    then relaunch'as'admin'if'user __.Context.Arguments |> ignore
+    else
+      if parameters.Any(fun p -> p = "netsh") then
+        try Tools.netsh'force'stop () |> ignore with e -> printfn $"<netsh force stop>: {e.Message}"
+      if parameters.Any(fun p -> p = "psr") then
+        try Tools.psr'stop () |> ignore with e -> printfn $"psr stop>: {e.Message}"
+
 #if DEBUG
 [<EntryPoint>]
 let main args =
@@ -193,7 +214,10 @@ let main args =
   then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
   else
     if need'admin args 
-    then relaunch'as'admin'if'user args |> ignore
+    then
+      match relaunch'as'admin'if'user args with
+      | Ok _ -> ()
+      | Error msg -> msgbox'show "Startup canceled."
     else ConsoleApp.Run<Command>(args)
     //clear()
     printfn "This process has been completed."
@@ -206,9 +230,11 @@ let main args =
   then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
   else
     if need'admin args 
-    then relaunch'as'admin'if'user args |> ignore
-    else ConsoleApp.Run<Command>(args)
-    clear()
+    then
+      match relaunch'as'admin'if'user args with Ok _ -> () | Error msg -> msgbox'show "Startup canceled."
+    else 
+      ConsoleApp.Run<Command>(args)
+      clear()
     printfn "This process has been completed."
   0
 #endif

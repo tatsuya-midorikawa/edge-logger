@@ -125,7 +125,10 @@ module Cmd =
       // hide console window
       CreateNoWindow = true)
 
-    proc.start pi
+    let p = proc.start pi
+    for cmd in cmds do p.exec cmd
+    p
+
 
 module Env =
   // get-hotofix
@@ -536,7 +539,7 @@ module Tools =
     |> (combine' >> netexport'cmd >> Cmd.exec)
   
   // netsh trace start scenario=InternetClient_dbg tracefile="{path}" capture=yes maxSize=300
-  let private netsh'start'cmd path = $"netsh trace start scenario=InternetClient_dbg tracefile=\"{path}\" capture=yes maxSize=300"
+  let private netsh'start'cmd path = $"netsh trace start scenario=InternetClient_dbg tracefile=\"{path}\" capture=yes maxSize=500"
   let netsh'start root'dir =
     // (1) C:\logs to C:\logs\yyyyMMdd_HHmmss
     let root'dir = Logger.get'root'dir root'dir
@@ -550,3 +553,5 @@ module Tools =
   let netsh'stop (p: proc) =
     // Output C:\logs\yyyyMMdd_HHmmss\protcol.etl
     p.exec netsh'stop'cmd
+
+  let netsh'force'stop () = [| netsh'stop'cmd |] |> Cmd.exec
