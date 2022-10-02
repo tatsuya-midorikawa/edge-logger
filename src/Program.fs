@@ -217,8 +217,7 @@ let main args =
     then
       match relaunch'as'admin'if'user args with
       | Ok _ -> ()
-      // TODO
-      | Error msg -> raise (notimplexn "")
+      | Error msg -> msgbox'show "Startup canceled."
     else ConsoleApp.Run<Command>(args)
     //clear()
     printfn "This process has been completed."
@@ -231,7 +230,8 @@ let main args =
   then msgbox'show "To log net-export/netsh, msedge.exe must be terminated and run this app again."
   else
     if need'admin args 
-    then relaunch'as'admin'if'user args |> ignore
+    then
+      match relaunch'as'admin'if'user args with Ok _ -> () | Error msg -> msgbox'show "Startup canceled."
     else ConsoleApp.Run<Command>(args)
     clear()
     printfn "This process has been completed."
