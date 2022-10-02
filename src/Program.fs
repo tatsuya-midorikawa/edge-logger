@@ -232,8 +232,9 @@ let main args =
     if need'admin args 
     then
       match relaunch'as'admin'if'user args with Ok _ -> () | Error msg -> msgbox'show "Startup canceled."
-    else ConsoleApp.Run<Command>(args)
-    clear()
+    else 
+      ConsoleApp.Run<Command>(args)
+      clear()
     printfn "This process has been completed."
   0
 #endif
