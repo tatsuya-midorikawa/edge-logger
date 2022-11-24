@@ -175,6 +175,7 @@ type Command () =
         (try Tools.psr'stop () with e -> $"<psr stop>: {e.Message}") |> (log >> wait)
 
       Cmd.exec [| $"explorer %s{dir}" |] |> ignore
+      clear()
     ()
   
   [<Command("stop")>]
@@ -197,6 +198,9 @@ type Command () =
         try Tools.netsh'force'stop () |> ignore with e -> printfn $"<netsh force stop>: {e.Message}"
       if parameters.Any(fun p -> p = "psr") then
         try Tools.psr'stop () |> ignore with e -> printfn $"psr stop>: {e.Message}"
+        
+    clear()
+
 
 #if DEBUG
 [<EntryPoint>]
@@ -234,7 +238,6 @@ let main args =
       match relaunch'as'admin'if'user args with Ok _ -> () | Error msg -> msgbox'show "Startup canceled."
     else 
       ConsoleApp.Run<Command>(args)
-      clear()
     printfn "This process has been completed."
   0
 #endif
